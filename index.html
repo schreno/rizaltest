@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rizal rizal rizal</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--tallow:#e3d5a1;--moss:#6f7d63;--rust:#8a4b2a;--bone:#cfc7ad}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:var(--bone);
+  font-family:'IM Fell English',Georgia,'Times New Roman',serif;user-select:none;-webkit-user-select:none}
+#canvas-container{position:absolute;inset:0}
+#vignette{position:absolute;inset:0;pointer-events:none;z-index:10;
+  background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.8) 80%,#000 100%)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.09;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.hidden{display:none!important}
+.pointer-events-none{pointer-events:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--tallow);outline-offset:3px}
+
+/* Intro scrims */
+/* Intro Overlay & Footer Layout */
+#intro-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1.5rem, 4vw, 3.5rem);
+  opacity: 0;
+  transition: opacity 1.2s;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.2) 25%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.4) 75%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+  pointer-events: none;
+}
+
+#intro-overlay > * {
+  pointer-events: auto;
+}
+
+#intro-overlay header h1 {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  line-height: 1.1;
+  color: var(--tallow);
+}
+
+#intro-overlay header p {
+  margin: 0.4rem 0 0;
+  font-style: italic;
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  color: var(--moss);
+}
+
+/* Button Styling */
+.btn {
+  background: transparent;
+  border: 1px solid rgba(227, 213, 161, 0.55);
+  color: var(--tallow);
+  padding: 0.7rem 1.8rem;
+  font-size: 1.35rem;
+  font-style: italic;
+  border-radius: 2px;
+  transition: background 0.25s, color 0.25s;
+}
+
+.btn:hover {
+  background: var(--tallow);
+  color: #000;
+}
+
+/* Positioned cleanly at the bottom edge */
+#intro-overlay footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+}
+
+#intro-overlay footer p {
+  margin: 0;
+  max-width: 36ch;
+  line-height: 1.5;
+  font-size: 1.05rem;
+  color: var(--bone);
+}
+
+/* HUD */
+#hud-overlay{position:absolute;inset:0;z-index:20;pointer-events:none;opacity:0;transition:opacity .7s}
+#hud-overlay>*{pointer-events:auto}
+#minimap-container{position:absolute;top:1rem;left:1rem;width:clamp(7rem,22vw,10rem);aspect-ratio:1;
+  border:1px solid rgba(227,213,161,.25);background:#000;opacity:.9}
+#minimap{width:100%;height:100%;display:block}
+.top-right{position:absolute;top:1rem;right:1rem;display:flex;gap:1.25rem}
+.link{background:none;border:0;padding:.4rem 0;font-style:italic;font-size:1.05rem;color:var(--moss);border-bottom:1px solid transparent}
+.link:hover{color:var(--tallow);border-bottom-color:var(--tallow)}
+.pad{position:absolute;bottom:max(1.25rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.pad div{display:flex;gap:.5rem}
+.ctrl-btn{width:3.6rem;height:3.6rem;display:grid;place-items:center;background:rgba(0,0,0,.55);color:var(--bone);
+  border:1px solid rgba(227,213,161,.3);border-radius:2px;touch-action:manipulation;transition:background .12s}
+.ctrl-btn:active{background:rgba(227,213,161,.25)}
+.ctrl-btn svg{width:1.6rem;height:1.6rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* Ending */
+#scare-overlay{position:absolute;inset:0;z-index:30;background:#000;display:flex;align-items:center;justify-content:center;
+  text-align:center;opacity:0;transition:opacity 1.5s}
+#scare-content{padding:1.5rem;transform:scale(.97);transition:transform 2s}
+#scare-title{margin:0 0 1rem;font-weight:400;font-size:clamp(2.2rem,7vw,4.2rem);color:var(--tallow)}
+#scare-desc{margin:0 auto 2.2rem;max-width:34ch;font-style:italic;font-size:1.2rem;line-height:1.5;color:var(--moss)}
+@media (prefers-reduced-motion:reduce){#intro-overlay,#hud-overlay,#scare-overlay,#scare-content{transition-duration:.01s}}
+</style>
+</head>
+<body>
+<div id="canvas-container"></div>
+<div id="vignette"></div>
+
+<div id="intro-overlay">
+  <header>
+    <h1>Maze ni rizal</h1>
+    <p>Complete the maze to find rizal</p>
+  </header>
+  
+  <footer>
+    <p>walk using WASD keys, turn using a or d and screen buttons works too</p>
+    <button id="btn-enter" class="btn">Go in</button>
+  </footer>
+</div>
+
+<div id="hud-overlay" class="hidden">
+  <div id="minimap-container"><canvas id="minimap"></canvas></div>
+  <div class="top-right">
+    <button id="btn-audio" class="link"><span id="audio-icon">Sound on</span></button>
+    <button id="btn-restart" class="link">Restart</button>
+  </div>
+  <div class="pad">
+    <button id="btn-fwd" class="ctrl-btn" aria-label="Walk forward"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button>
+    <div>
+      <button id="btn-left" class="ctrl-btn" aria-label="Turn left"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="btn-bwd" class="ctrl-btn" aria-label="Step back"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>
+      <button id="btn-right" class="ctrl-btn" aria-label="Turn right"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<div id="scare-overlay" class="pointer-events-none">
+  <div id="scare-content">
+    <h2 id="scare-title">Congrats bro, you found Rizal!</h2>
+    <p id="scare-desc">"Ang kabataan ang pag-asa ng bayan." You explored through the shadows and saved the hero waiting at the end of the maze!!!</p>
+    <button id="btn-replay" class="btn pointer-events-auto" style="pointer-events:auto">Go back in</button>
+  </div>
+</div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        /**
+         * Horror Maze Game Logic & Three.js Engine (Optimized Performance)
+         */
+
+        // --- Maze Configuration & Data ---
+        const MAZE_SIZE = 11; // Must be odd for recursive backtracker algorithm
+        const CELL_SIZE = 4;  // Size of each grid cell in Three.js world coordinates
+        const WALL_HEIGHT = 4.5;
+        
+        let mazeGrid = []; // 0 = Path, 1 = Wall
+        let playerPos = { x: 1, z: 1 };
+        let playerAngle = 0; // 0 = facing South (+Z), PI/2 = West (-X), PI = North (-Z), 3PI/2 = East (+X)
+        let targetAngle = 0;
+        let isTransitioning = false;
+        let isFirstPerson = false;
+        let gameFinished = false;
+        let visX = CELL_SIZE, visZ = CELL_SIZE, bobT = 0, flick = 0;
+        let worldGroup, ceiling, glow, seen = [];
+        const FOG = 0.14;
+
+        // Reusable Vector singletons for GC optimization
+        const _tempDir = new THREE.Vector3();
+        const _p0 = new THREE.Vector3();
+        const _p1 = new THREE.Vector3();
+        const _q0 = new THREE.Quaternion();
+        const _q1 = new THREE.Quaternion();
+
+        // Goal position (Exit)
+        const exitPos = { x: MAZE_SIZE - 2, z: MAZE_SIZE - 2 };
+
+        // --- Audio Synthesizer (Web Audio API) ---
+        class HorrorAudio {
+            constructor() {
+                this.ctx = null;
+                this.droneNode = null;
+                this.windNode = null;
+                this.isMuted = false;
+                this.initialized = false;
+            }
+
+            init() {
+                if (this.initialized) return;
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                    this.ctx.resume();
+                    this.createAmbientDrone();
+                    this.initialized = true;
+                } catch(e) {
+                    console.log("Audio Context initialization failed", e);
+                }
+            }
+
+            createAmbientDrone() {
+                if (!this.ctx) return;
+
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const filter = this.ctx.createBiquadFilter();
+
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(45, this.ctx.currentTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(120, this.ctx.currentTime);
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                this.droneNode = { osc, gain, filter };
+
+                this.startHeartbeat();
+            }
+
+            startHeartbeat() {
+                if (!this.ctx) return;
+                const heartbeatLoop = () => {
+                    if (this.isMuted || !this.initialized) {
+                        setTimeout(heartbeatLoop, 1200);
+                        return;
+                    }
+                    this.playSubThump();
+                    setTimeout(() => {
+                        this.playSubThump(0.7);
+                    }, 280);
+                    setTimeout(heartbeatLoop, 1400);
+                };
+                heartbeatLoop();
+            }
+
+            playSubThump(intensity = 1.0) {
+                if (!this.ctx || this.isMuted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(60, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.3 * intensity, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.26);
+            }
+
+            playFootstep() {
+                if (!this.ctx || this.isMuted) return;
+                const bufferSize = this.ctx.sampleRate * 0.1;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 400;
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start();
+            }
+
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.droneNode) {
+                    this.droneNode.gain.gain.setValueAtTime(this.isMuted ? 0 : 0.15, this.ctx.currentTime);
+                }
+                return this.isMuted;
+            }
+        }
+
+        // Procedurally generates an eerie canvas portrait of Dr. José Rizal
+function createRizalTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 340;
+    const ctx = canvas.getContext('2d');
+
+    // Dark vintage backdrop
+    const bgGrad = ctx.createRadialGradient(128, 170, 20, 128, 170, 160);
+    bgGrad.addColorStop(0, '#2a261f');
+    bgGrad.addColorStop(1, '#080806');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 256, 340);
+
+    // Oval portrait frame
+    ctx.beginPath();
+    ctx.ellipse(128, 160, 95, 125, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = '#8a7346';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+    ctx.clip();
+
+    // Dark suit coat & high collar
+    ctx.fillStyle = '#0f1110';
+    ctx.beginPath();
+    ctx.moveTo(30, 320);
+    ctx.quadraticCurveTo(70, 220, 110, 210);
+    ctx.lineTo(146, 210);
+    ctx.quadraticCurveTo(186, 220, 226, 320);
+    ctx.fill();
+
+    // Collar detail
+    ctx.fillStyle = '#cfc7ad';
+    ctx.fillRect(115, 195, 26, 20);
+
+    // Face structure & iconic side-swept hair
+    ctx.fillStyle = '#b8a686';
+    ctx.beginPath();
+    ctx.ellipse(128, 150, 42, 54, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Hair
+    ctx.fillStyle = '#141210';
+    ctx.beginPath();
+    ctx.arc(128, 130, 46, Math.PI * 0.8, Math.PI * 2.1);
+    ctx.lineTo(82, 135);
+    ctx.fill();
+
+    // Eyes (dark hollow eerie gaze)
+    ctx.fillStyle = '#0a0a08';
+    ctx.beginPath();
+    ctx.ellipse(112, 148, 6, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(144, 148, 6, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Moustache & features
+    ctx.fillStyle = '#221e18';
+    ctx.beginPath();
+    ctx.ellipse(128, 174, 16, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+
+        const audio = new HorrorAudio();
+
+        // --- Maze Generation (Recursive Backtracker) ---
+        function generateMaze(size) {
+            let grid = Array.from({ length: size }, () => Array(size).fill(1));
+
+            function carve(x, z) {
+                grid[z][x] = 0;
+                const dirs = [
+                    [0, -2], [0, 2], [-2, 0], [2, 0]
+                ].sort(() => Math.random() - 0.5);
+
+                for (let [dx, dz] of dirs) {
+                    let nx = x + dx, nz = z + dz;
+                    if (nx > 0 && nx < size - 1 && nz > 0 && nz < size - 1 && grid[nz][nx] === 1) {
+                        grid[z + dz / 2][x + dx / 2] = 0;
+                        carve(nx, nz);
+                    }
+                }
+            }
+
+            carve(1, 1);
+            grid[exitPos.z][exitPos.x] = 0;
+            return grid;
+        }
+
+        // --- Three.js World Setup ---
+        let scene, camera, renderer;
+        let flashlight, ambientLight;
+        let wallGroup, exitObject;
+        let cachedWallMaterials = null;
+        let cachedFloorMaterial = null;
+
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
+            scene.fog = new THREE.FogExp2(0x000000, 0);
+
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+            renderer.shadowMap.enabled = false; // Disabled costly shadow map for massive frame gains
+            container.appendChild(renderer.domElement);
+
+            ambientLight = new THREE.AmbientLight(0x7d8a72, 1);
+            scene.add(ambientLight);
+
+            flashlight = new THREE.SpotLight(0xffe6a8, 1.8, 16, Math.PI / 4.2, 0.55, 1.4);
+            glow = new THREE.PointLight(0xffd890, 0, 7, 2);
+            scene.add(glow);
+            scene.add(flashlight);
+            scene.add(flashlight.target);
+
+            mazeGrid = generateMaze(MAZE_SIZE);
+            build3DMaze();
+            setTopViewCamera();
+
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function createWallTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#1b2119';
+            ctx.fillRect(0, 0, 128, 128);
+
+            for (let i = 0; i < 1000; i++) {
+                const x = Math.random() * 128;
+                const y = Math.random() * 128;
+                ctx.fillStyle = `rgba(214,226,190,${Math.random() * 0.12})`;
+                ctx.fillRect(x, y, 2, 2);
+            }
+
+            for (let i = 0; i < 4; i++) {
+                const x = Math.random() * 128;
+                const y = Math.random() * 64;
+                const len = 20 + Math.random() * 40;
+                const grad = ctx.createLinearGradient(x, y, x, y + len);
+                grad.addColorStop(0, 'rgba(78, 46, 20, 0.55)');
+                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                ctx.fillStyle = grad;
+                ctx.fillRect(x - 2, y, 4, len);
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        function createFloorTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0b0e0a';
+            ctx.fillRect(0, 0, 128, 128);
+
+            ctx.strokeStyle = '#1c2219';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(0, 0, 128, 128);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(MAZE_SIZE, MAZE_SIZE);
+            return texture;
+        }
+
+        function build3DMaze() {
+    if (worldGroup) scene.remove(worldGroup);
+    worldGroup = new THREE.Group();
+    scene.add(worldGroup);
+    wallGroup = worldGroup;
+
+    // Cache materials to avoid redundant instantiation & memory leaks
+    if (!cachedWallMaterials) {
+        cachedWallMaterials = [0, 1, 2, 3].map(() => new THREE.MeshStandardMaterial({
+            map: createWallTexture(),
+            roughness: 0.95,
+            metalness: 0
+        }));
+    }
+    if (!cachedFloorMaterial) {
+        cachedFloorMaterial = new THREE.MeshStandardMaterial({
+            map: createFloorTexture(),
+            roughness: 0.8
+        });
+    }
+
+    const wallGeometry = new THREE.BoxGeometry(CELL_SIZE, WALL_HEIGHT, CELL_SIZE);
+
+    // Build Floor
+    const floorGeo = new THREE.PlaneGeometry(MAZE_SIZE * CELL_SIZE, MAZE_SIZE * CELL_SIZE);
+    const floor = new THREE.Mesh(floorGeo, cachedFloorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set((MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2, 0, (MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2);
+    worldGroup.add(floor);
+
+    // Ceiling Mesh
+    ceiling = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: 0x10130e, roughness: 1 }));
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.set(floor.position.x, WALL_HEIGHT, floor.position.z);
+    ceiling.visible = isFirstPerson;
+    worldGroup.add(ceiling);
+
+    // Build Wall Meshes
+    for (let z = 0; z < MAZE_SIZE; z++) {
+        for (let x = 0; x < MAZE_SIZE; x++) {
+            if (mazeGrid[z][x] === 1) {
+                const wall = new THREE.Mesh(wallGeometry, cachedWallMaterials[(x + z) % 4]);
+                wall.position.set(x * CELL_SIZE, WALL_HEIGHT / 2, z * CELL_SIZE);
+                wallGroup.add(wall);
+            }
+        }
+    }
+
+// --- Standing Rizal Image URL Billboard Exit ---
+    const textureLoader = new THREE.TextureLoader();
+    const rizalTexture = textureLoader.load('https://cdn.pixabay.com/photo/2022/04/10/04/24/jose-rizal-7122633_1280.png');
+    
+    const rizalMat = new THREE.MeshBasicMaterial({
+        map: rizalTexture,
+        side: THREE.DoubleSide,
+        transparent: true
+    });
+
+    // Vertical portrait sprite standing inside the corridor
+    const rizalGeo = new THREE.PlaneGeometry(2.6, 3.4);
+    exitObject = new THREE.Mesh(rizalGeo, rizalMat);
+    exitObject.position.set(exitPos.x * CELL_SIZE, 1.7, exitPos.z * CELL_SIZE);
+    worldGroup.add(exitObject);
+
+    // Pedestal under Rizal
+    const baseGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.2, 16);
+    const baseMat = new THREE.MeshBasicMaterial({ color: 0x8a7346 });
+    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+    baseMesh.position.set(exitPos.x * CELL_SIZE, 0.1, exitPos.z * CELL_SIZE);
+    worldGroup.add(baseMesh);
+
+    // Eerie ambient point light casting over Rizal
+    const exitLight = new THREE.PointLight(0xe3d5a1, 2.5, 9);
+    exitLight.position.set(exitPos.x * CELL_SIZE, 2.2, exitPos.z * CELL_SIZE);
+    worldGroup.add(exitLight);
+
+    seen = Array.from({ length: MAZE_SIZE }, () => Array(MAZE_SIZE).fill(false));
+}
+
+        function setTopViewCamera() {
+            const cx = (MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2;
+            const half = (MAZE_SIZE * CELL_SIZE) / 2 + 3;
+            const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+            const h = half / (t * Math.min(1, camera.aspect));
+            camera.position.set(cx, h, cx + 0.1);
+            camera.lookAt(cx, 0, cx);
+            ambientLight.intensity = 1;
+            scene.fog.density = 0;
+            flashlight.intensity = 0;
+            glow.intensity = 0;
+            if (ceiling) ceiling.visible = false;
+        }
+
+        function syncLights() {
+            camera.getWorldDirection(_tempDir);
+            flashlight.position.copy(camera.position);
+            flashlight.target.position.copy(camera.position).addScaledVector(_tempDir, 5);
+            glow.position.copy(camera.position);
+        }
+
+        function updateFirstPersonCamera(dt) {
+            const tx = playerPos.x * CELL_SIZE, tz = playerPos.z * CELL_SIZE;
+            const k = 1 - Math.exp(-dt * 9);
+            const moving = Math.min(Math.hypot(tx - visX, tz - visZ) / CELL_SIZE * 2, 1);
+            visX += (tx - visX) * k;
+            visZ += (tz - visZ) * k;
+            bobT += dt * 10 * moving;
+            const y = 1.7 + Math.sin(bobT) * 0.06 * moving;
+            camera.position.set(visX, y, visZ);
+            camera.lookAt(visX + Math.sin(playerAngle) * 5, y, visZ + Math.cos(playerAngle) * 5);
+            syncLights();
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            if (!isFirstPerson && !isTransitioning) setTopViewCamera();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- Mini-Map Canvas Rendering ---
+        const minimapCanvas = document.getElementById('minimap');
+        const minimapCtx = minimapCanvas.getContext('2d');
+
+        function drawMinimap() {
+            const w = minimapCanvas.clientWidth, h = minimapCanvas.clientHeight;
+            if (!w) return;
+            if (minimapCanvas.width !== w) { minimapCanvas.width = w; minimapCanvas.height = h; }
+            const g = minimapCtx, c = w / MAZE_SIZE;
+
+            for (let dz = -1; dz <= 1; dz++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const sx = playerPos.x + dx, sz = playerPos.z + dz;
+                    if (seen[sz] && sx >= 0 && sx < MAZE_SIZE) seen[sz][sx] = true;
+                }
+            }
+
+            g.fillStyle = '#000';
+            g.fillRect(0, 0, w, h);
+            for (let z = 0; z < MAZE_SIZE; z++) {
+                for (let x = 0; x < MAZE_SIZE; x++) {
+                    if (!seen[z] || !seen[z][x]) continue;
+                    g.fillStyle = mazeGrid[z][x] === 1 ? '#3b4436' : '#14180f';
+                    g.fillRect(x * c, z * c, c, c);
+                }
+            }
+            if (seen[exitPos.z] && seen[exitPos.z][exitPos.x]) {
+                g.fillStyle = '#cfe8e0';
+                g.fillRect(exitPos.x * c + 2, exitPos.z * c + 2, c - 4, c - 4);
+            }
+
+            g.save();
+            g.translate((playerPos.x + 0.5) * c, (playerPos.z + 0.5) * c);
+            const th = Math.PI / 2 - playerAngle;
+            g.beginPath();
+            g.moveTo(0, 0);
+            g.arc(0, 0, c * 1.8, th - Math.PI / 5, th + Math.PI / 5);
+            g.closePath();
+            g.fillStyle = 'rgba(227, 213, 161, 0.25)';
+            g.fill();
+            g.beginPath();
+            g.arc(0, 0, c * 0.3, 0, Math.PI * 2);
+            g.fillStyle = '#e3d5a1';
+            g.fill();
+            g.restore();
+        }
+
+        // --- Player Controls & Movement Logic ---
+        function moveForward() {
+            if (isTransitioning || gameFinished) return;
+            const dx = Math.round(Math.sin(targetAngle));
+            const dz = Math.round(Math.cos(targetAngle));
+            const nx = playerPos.x + dx;
+            const nz = playerPos.z + dz;
+
+            if (mazeGrid[nz] && mazeGrid[nz][nx] === 0) {
+                playerPos.x = nx;
+                playerPos.z = nz;
+                audio.playFootstep();
+                checkWinCondition();
+            }
+        }
+
+        function moveBackward() {
+            if (isTransitioning || gameFinished) return;
+            const dx = Math.round(Math.sin(targetAngle));
+            const dz = Math.round(Math.cos(targetAngle));
+            const nx = playerPos.x - dx;
+            const nz = playerPos.z - dz;
+
+            if (mazeGrid[nz] && mazeGrid[nz][nx] === 0) {
+                playerPos.x = nx;
+                playerPos.z = nz;
+                audio.playFootstep();
+                checkWinCondition();
+            }
+        }
+
+        function turnLeft() {
+            if (isTransitioning || gameFinished) return;
+            targetAngle += Math.PI / 2;
+        }
+
+        function turnRight() {
+            if (isTransitioning || gameFinished) return;
+            targetAngle -= Math.PI / 2;
+        }
+
+        function checkWinCondition() {
+            if (playerPos.x === exitPos.x && playerPos.z === exitPos.z) {
+                gameFinished = true;
+                setTimeout(triggerWinScare, 300);
+            }
+        }
+
+        function triggerWinScare() {
+            const overlay = document.getElementById('scare-overlay');
+            const content = document.getElementById('scare-content');
+            overlay.classList.remove('pointer-events-none');
+            overlay.style.opacity = '1';
+            content.style.transform = 'scale(1)';
+
+            flashlight.intensity = 5;
+            flashlight.color.setHex(0xdff5ee);
+            audio.playSubThump(2.0);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (!isFirstPerson || gameFinished) return;
+            if (e.key.startsWith('Arrow')) e.preventDefault();
+            switch(e.key.toLowerCase()) {
+                case 'w':
+                case 'arrowup':
+                    moveForward();
+                    break;
+                case 's':
+                case 'arrowdown':
+                    moveBackward();
+                    break;
+                case 'a':
+                case 'arrowleft':
+                    turnLeft();
+                    break;
+                case 'd':
+                case 'arrowright':
+                    turnRight();
+                    break;
+            }
+        });
+
+        // --- Transition from Intro to 1st Person POV ---
+        function transitionToFirstPerson() {
+            if (isTransitioning || isFirstPerson) return;
+            isTransitioning = true;
+            audio.init();
+
+            const intro = document.getElementById('intro-overlay');
+            intro.style.opacity = '0';
+            setTimeout(() => intro.classList.add('hidden'), 1200);
+
+            const tx = playerPos.x * CELL_SIZE, tz = playerPos.z * CELL_SIZE;
+            _p0.copy(camera.position);
+            _q0.copy(camera.quaternion);
+
+            _p1.set(tx, 1.7, tz);
+            camera.position.copy(_p1);
+            camera.lookAt(tx + Math.sin(playerAngle) * 5, 1.7, tz + Math.cos(playerAngle) * 5);
+            _q1.copy(camera.quaternion);
+
+            const t0 = performance.now(), dur = 3000;
+
+            function step(now) {
+                const p = Math.min(Math.max((now - t0) / dur, 0), 1);
+                const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+                camera.position.lerpVectors(_p0, _p1, e);
+                camera.quaternion.copy(_q0).slerp(_q1, e);
+                ambientLight.intensity = 1 - 0.88 * e;
+                scene.fog.density = FOG * e;
+                flashlight.intensity = 1.8 * e;
+                glow.intensity = 0.7 * e;
+                ceiling.visible = e > 0.7;
+                syncLights();
+
+                if (p < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    visX = tx; visZ = tz;
+                    isTransitioning = false;
+                    isFirstPerson = true;
+                    const hud = document.getElementById('hud-overlay');
+                    hud.classList.remove('hidden');
+                    setTimeout(() => hud.style.opacity = '1', 50);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        function resetRun() {
+            gameFinished = false;
+            playerPos = { x: 1, z: 1 };
+            playerAngle = targetAngle = 0;
+            visX = visZ = CELL_SIZE;
+            flick = 0;
+            flashlight.intensity = 1.8;
+            flashlight.color.setHex(0xffe6a8);
+            seen = Array.from({ length: MAZE_SIZE }, () => Array(MAZE_SIZE).fill(false));
+            const overlay = document.getElementById('scare-overlay');
+            overlay.style.opacity = '0';
+            overlay.classList.add('pointer-events-none');
+            document.getElementById('scare-content').style.transform = 'scale(0.97)';
+        }
+
+        function restartGame() { resetRun(); }
+
+        function replayGame() {
+            mazeGrid = generateMaze(MAZE_SIZE);
+            build3DMaze();
+            resetRun();
+        }
+
+        // --- Animation Loop ---
+        let lastTime = 0;
+        function animate(time) {
+            if (exitObject) {
+                exitObject.lookAt(camera.position.x, 1.6, camera.position.z);
+            }
+
+            requestAnimationFrame(animate);
+            const dt = Math.min(Math.max((time - lastTime) / 1000, 0), 0.1);
+            lastTime = time;
+
+            if (isFirstPerson) {
+                playerAngle += (targetAngle - playerAngle) * (1 - Math.exp(-dt * 9));
+                updateFirstPersonCamera(dt);
+                drawMinimap();
+                if (!gameFinished) {
+                    if (Math.random() < 0.004) flick = 1;
+                    flick = Math.max(0, flick - dt * 2.5);
+                    flashlight.intensity = 1.8 - flick * (0.4 + Math.random() * 0.9);
+                    glow.intensity = 0.7 - flick * 0.4;
+                }
+            }
+            if (exitObject) exitObject.rotation.y += dt;
+            renderer.render(scene, camera);
+        }
+
+        // --- Attach Event Listeners ---
+        window.onload = () => {
+            initThreeJS();
+
+            setTimeout(() => {
+                const intro = document.getElementById('intro-overlay');
+                intro.style.opacity = '1';
+            }, 200);
+
+            document.getElementById('btn-enter').addEventListener('click', transitionToFirstPerson);
+            
+            document.getElementById('btn-fwd').addEventListener('click', moveForward);
+            document.getElementById('btn-bwd').addEventListener('click', moveBackward);
+            document.getElementById('btn-left').addEventListener('click', turnLeft);
+            document.getElementById('btn-right').addEventListener('click', turnRight);
+
+            document.getElementById('btn-audio').addEventListener('click', () => {
+                const muted = audio.toggleMute();
+                const icon = document.getElementById('audio-icon');
+                icon.textContent = muted ? 'Sound off' : 'Sound on';
+            });
+
+            document.getElementById('btn-restart').addEventListener('click', restartGame);
+            document.getElementById('btn-replay').addEventListener('click', replayGame);
+
+            animate(0);
+        };
+    </script>
+</body>
+</html>
