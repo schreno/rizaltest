@@ -1,874 +1,354 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>rizal rizal rizal</title>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rizal Historical Maze</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
 <style>
-:root{--tallow:#e3d5a1;--moss:#6f7d63;--rust:#8a4b2a;--bone:#cfc7ad}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:var(--bone);
-  font-family:'IM Fell English',Georgia,'Times New Roman',serif;user-select:none;-webkit-user-select:none}
-#canvas-container{position:absolute;inset:0}
-#vignette{position:absolute;inset:0;pointer-events:none;z-index:10;
-  background:radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.8) 80%,#000 100%)}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:40;opacity:.09;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
-.hidden{display:none!important}
-.pointer-events-none{pointer-events:none}
+:root{--gold:#d4af37;--cream:#f4ebd0;--bg:#0d0f12}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--cream);font-family:'IM Fell English',Georgia,serif;user-select:none;-webkit-user-select:none}
+#c{position:absolute;inset:0}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:2px solid var(--tallow);outline-offset:3px}
-
-/* Intro scrims */
-/* Intro Overlay & Footer Layout */
-#intro-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: clamp(1.5rem, 4vw, 3.5rem);
-  opacity: 0;
-  transition: opacity 1.2s;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.85) 0%,
-    rgba(0, 0, 0, 0.2) 25%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.4) 75%,
-    rgba(0, 0, 0, 0.9) 100%
-  );
-  pointer-events: none;
-}
-
-#intro-overlay > * {
-  pointer-events: auto;
-}
-
-#intro-overlay header h1 {
-  margin: 0;
-  font-weight: 400;
-  font-size: clamp(2.2rem, 6vw, 4.2rem);
-  line-height: 1.1;
-  color: var(--tallow);
-}
-
-#intro-overlay header p {
-  margin: 0.4rem 0 0;
-  font-style: italic;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  color: var(--moss);
-}
-
-/* Button Styling */
-.btn {
-  background: transparent;
-  border: 1px solid rgba(227, 213, 161, 0.55);
-  color: var(--tallow);
-  padding: 0.7rem 1.8rem;
-  font-size: 1.35rem;
-  font-style: italic;
-  border-radius: 2px;
-  transition: background 0.25s, color 0.25s;
-}
-
-.btn:hover {
-  background: var(--tallow);
-  color: #000;
-}
-
-/* Positioned cleanly at the bottom edge */
-#intro-overlay footer {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  width: 100%;
-}
-
-#intro-overlay footer p {
-  margin: 0;
-  max-width: 36ch;
-  line-height: 1.5;
-  font-size: 1.05rem;
-  color: var(--bone);
-}
-
-/* HUD */
-#hud-overlay{position:absolute;inset:0;z-index:20;pointer-events:none;opacity:0;transition:opacity .7s}
-#hud-overlay>*{pointer-events:auto}
-#minimap-container{position:absolute;top:1rem;left:1rem;width:clamp(7rem,22vw,10rem);aspect-ratio:1;
-  border:1px solid rgba(227,213,161,.25);background:#000;opacity:.9}
-#minimap{width:100%;height:100%;display:block}
-.top-right{position:absolute;top:1rem;right:1rem;display:flex;gap:1.25rem}
-.link{background:none;border:0;padding:.4rem 0;font-style:italic;font-size:1.05rem;color:var(--moss);border-bottom:1px solid transparent}
-.link:hover{color:var(--tallow);border-bottom-color:var(--tallow)}
-.pad{position:absolute;bottom:max(1.25rem,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
-  display:flex;flex-direction:column;align-items:center;gap:.5rem}
-.pad div{display:flex;gap:.5rem}
-.ctrl-btn{width:3.6rem;height:3.6rem;display:grid;place-items:center;background:rgba(0,0,0,.55);color:var(--bone);
-  border:1px solid rgba(227,213,161,.3);border-radius:2px;touch-action:manipulation;transition:background .12s}
-.ctrl-btn:active{background:rgba(227,213,161,.25)}
-.ctrl-btn svg{width:1.6rem;height:1.6rem;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-
-/* Ending */
-#scare-overlay{position:absolute;inset:0;z-index:30;background:#000;display:flex;align-items:center;justify-content:center;
-  text-align:center;opacity:0;transition:opacity 1.5s}
-#scare-content{padding:1.5rem;transform:scale(.97);transition:transform 2s}
-#scare-title{margin:0 0 1rem;font-weight:400;font-size:clamp(2.2rem,7vw,4.2rem);color:var(--tallow)}
-#scare-desc{margin:0 auto 2.2rem;max-width:34ch;font-style:italic;font-size:1.2rem;line-height:1.5;color:var(--moss)}
-@media (prefers-reduced-motion:reduce){#intro-overlay,#hud-overlay,#scare-overlay,#scare-content{transition-duration:.01s}}
-</style>
-</head>
-<body>
-<div id="canvas-container"></div>
-<div id="vignette"></div>
-
-<div id="intro-overlay">
-  <header>
-    <h1>Maze ni rizal</h1>
-    <p>Complete the maze to find rizal</p>
-  </header>
-  
-  <footer>
-    <p>walk using WASD keys, turn using a or d and screen buttons works too</p>
-    <button id="btn-enter" class="btn">Go in</button>
-  </footer>
+.btn{background:none;border:1px solid var(--gold);color:var(--gold);padding:.7rem 1.8rem;font-family:Cinzel,serif;letter-spacing:1px;border-radius:2px}
+.btn:hover{background:var(--gold);color:#0d0f12}
+#intro{position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(1.5rem,4vw,3.5rem);background:linear-gradient(#0a0c10ee,#0a0c1055 45%,#050608ee);transition:opacity 1s}
+#intro h1{margin:0;font:700 clamp(2.1rem,5.5vw,3.8rem) Cinzel,serif;letter-spacing:2px;color:var(--gold)}
+#intro header p{margin:.5rem 0 0;font-style:italic;font-size:1.25rem;color:#a8b2a4}
+#intro footer{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+#intro footer p{margin:0;max-width:52ch;line-height:1.6;color:#cfc7ad}
+#hud{position:absolute;inset:0;z-index:15;pointer-events:none}
+#hud>*{pointer-events:auto}
+#mmw{position:absolute;top:1rem;left:1rem;width:clamp(8.5rem,22vw,12.5rem);aspect-ratio:1;border:1px solid #6b5a2a;background:#0a0908}
+#mm{width:100%;height:100%;display:block}
+#cnt{position:absolute;top:calc(1rem + clamp(8.5rem,22vw,12.5rem) + .4rem);left:1rem;font:.95rem Cinzel,serif;color:#a8987a;letter-spacing:1px}
+.tr{position:absolute;top:1rem;right:1rem;display:flex;gap:.6rem}
+.lk,.tr button{background:#0f1218b3;border:1px solid #6b5a2a;padding:.4rem .9rem;border-radius:2px;color:var(--gold);font-size:1rem}
+#prompt{position:absolute;left:50%;bottom:10.5rem;transform:translateX(-50%);padding:.55rem 1.3rem;background:#14120ee6;border:1px solid var(--gold);color:var(--gold);font-family:Cinzel,serif;letter-spacing:1px}
+@media(hover:hover) and (pointer:fine){#prompt{bottom:2.2rem}.pad{display:none!important}}
+.pad{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.pad div{display:flex;gap:.4rem}
+.pad button{width:3.6rem;height:3.6rem;font-size:1.5rem;background:#0f141cd9;border:1px solid #6b5a2a;color:var(--gold);border-radius:3px;touch-action:manipulation}
+#sheet{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);z-index:30;background:#14120e;border-left:1px solid #6b5a2a;transform:translateX(100%);transition:transform .35s;overflow:auto;padding:1.3rem 1.5rem 2.5rem;user-select:text;-webkit-user-select:text}
+#sheet.on{transform:none}
+@media(max-width:700px){#sheet{top:auto;height:70vh;border-left:0;border-top:1px solid #6b5a2a;transform:translateY(100%)}}
+#sheet .x{float:right}
+.yr{font:700 .95rem Cinzel,serif;letter-spacing:3px;color:var(--gold)}
+#sheet h2{margin:.2rem 0 1rem;font:700 1.7rem/1.2 Cinzel,serif;color:var(--cream)}
+#sheet canvas,#sheet img,#sheet video,#sheet iframe{width:100%;aspect-ratio:12/5;object-fit:cover;display:block;border:1px solid #3a3222;margin-bottom:.4rem}
+#sheet iframe,#sheet video{aspect-ratio:16/9}
+.cap{margin:0 0 1rem;font-size:.9rem;font-style:italic;color:#8d8369}
+#sheet ul{list-style:none;padding:0;margin:1rem 0}
+#sheet li{margin:0 0 .85rem;padding-left:.9rem;border-left:2px solid #4a3d1c;line-height:1.5;font-size:1.08rem;color:#d9d0b4}
+#sheet li b{display:block;font:700 .82rem Cinzel,serif;letter-spacing:1px;color:var(--gold);margin-bottom:.1rem}
+#sheet blockquote{margin:1rem 0;padding:.2rem 0 .2rem 1rem;border-left:2px solid var(--gold);font-style:italic;line-height:1.55;color:var(--cream)}
+.lk2 a{display:inline-block;margin:0 .8rem .4rem 0;color:var(--gold)}
+.vid{margin:.2rem 0 .8rem}
+.j{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #2c2618;padding:.6rem 0;color:var(--cream)}
+.j span{color:var(--gold);font:700 .8rem Cinzel,serif;margin-right:.7rem}
+#end{position:absolute;left:0;right:0;bottom:0;z-index:25;padding:2rem clamp(1.5rem,6vw,5rem) 2.5rem;background:linear-gradient(transparent,#0b0907f2 35%);opacity:0;transition:opacity 2.5s;pointer-events:none}#end.on{pointer-events:auto}
+#end h2{margin:0;font:700 clamp(1.6rem,4vw,2.6rem) Cinzel,serif;color:var(--gold);letter-spacing:2px}
+#end p{max-width:62ch;line-height:1.6;font-size:1.15rem;color:#e4dabd}
+#end .btn{margin:.4rem .6rem 0 0}
+#c{touch-action:none}
+@keyframes fin{from{opacity:0}to{opacity:1}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pb{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-6px)}}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.25);color:var(--gold)}100%{transform:scale(1)}}
+@keyframes hint{0%{opacity:0;transform:translate(-50%,-44%)}15%,80%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-56%)}}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,10px)}10%,85%{opacity:1;transform:translate(-50%,0)}100%{opacity:0}}
+#hud:not([hidden]){animation:fin 1.2s}
+#prompt{animation:pb 1.8s ease-in-out infinite}
+#cnt{transform-origin:left center}#cnt.pop{animation:pop .6s}
+#intro header{animation:fu 1.4s both}#intro footer{animation:fu 1.4s .5s both}
+.btn,.tr button,.fmt button{transition:background .2s,color .2s,transform .15s}.btn:active,.tr button:active{transform:scale(.96)}
+#sheet.on li{animation:fu .5s both}
+#hint{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:18;text-align:center;pointer-events:none;opacity:0;width:min(90vw,34rem)}
+#hint.show{animation:hint 5.5s ease both}
+#hint h2{margin:0 0 .5rem;font:700 clamp(1.4rem,4vw,2.2rem) Cinzel,serif;color:var(--gold);letter-spacing:2px}
+#hint p{margin:0;font-style:italic;font-size:1.15rem;color:#cfc7ad}
+#toast{position:absolute;left:50%;top:58%;z-index:40;padding:.7rem 1.4rem;background:#14120ef2;border:1px solid var(--gold);text-align:center;line-height:1.5;max-width:min(90vw,30rem);opacity:0;pointer-events:none}
+#toast.show{animation:toast 3.6s ease both}
+#mmw{cursor:pointer}#mmw::after{content:'⤢';position:absolute;right:.35rem;bottom:.1rem;color:var(--gold)}
+#fm{position:absolute;inset:0;z-index:35;background:#060504ee;display:flex;align-items:center;justify-content:center;animation:fin .3s}
+.fmb{display:flex;flex-direction:column;align-items:center;gap:.7rem}
+#fmc{width:min(82vmin,760px);aspect-ratio:1;border:1px solid #6b5a2a;background:#0a0908;cursor:pointer;animation:fu .35s both}
+.fmt{display:flex;gap:.6rem}.fmt button{background:none;border:1px solid #6b5a2a;padding:.4rem .9rem;color:var(--gold)}
+.fml{margin:0;font-size:.95rem;color:#a8987a;text-align:center;max-width:60ch;padding:0 1rem}
+@media(max-width:700px){.tr{gap:.3rem}.tr button{padding:.3rem .55rem;font-size:.9rem}#end{max-height:62vh;overflow:auto;padding-top:1.2rem}#end p{font-size:1rem}}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important}}
+</style></head><body>
+<div id="c"></div>
+<div id="intro">
+<header><h1>Rizal Historical Maze</h1><p>Walk the timeline of Dr. José Rizal’s life, from 1820 to 1896</p></header>
+<footer><p>Find every plaque set into the walls, in the order events happened, to unlock the exit. A red cross at the end of a corridor means it leads nowhere. Move with W A S D or the arrow keys (on a phone: the arrow buttons or swipe), press E at a plaque to read it, M for the full map.</p>
+<button id="go" class="btn">Begin the Journey</button></footer></div>
+<div id="hud" hidden>
+<div id="mmw" role="button" title="Open full map"><canvas id="mm"></canvas></div><div id="cnt"></div>
+<div class="tr"><button id="bm">Map</button><button id="bj">Journal</button><button id="bs">Sound: On</button><button id="br">Restart</button></div>
+<button id="prompt" hidden></button>
+<div class="pad"><button data-k="f" aria-label="Forward">↑</button><div><button data-k="l" aria-label="Turn left">←</button><button data-k="b" aria-label="Back">↓</button><button data-k="r" aria-label="Turn right">→</button></div></div>
 </div>
-
-<div id="hud-overlay" class="hidden">
-  <div id="minimap-container"><canvas id="minimap"></canvas></div>
-  <div class="top-right">
-    <button id="btn-audio" class="link"><span id="audio-icon">Sound on</span></button>
-    <button id="btn-restart" class="link">Restart</button>
-  </div>
-  <div class="pad">
-    <button id="btn-fwd" class="ctrl-btn" aria-label="Walk forward"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7"/></svg></button>
-    <div>
-      <button id="btn-left" class="ctrl-btn" aria-label="Turn left"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
-      <button id="btn-bwd" class="ctrl-btn" aria-label="Step back"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg></button>
-      <button id="btn-right" class="ctrl-btn" aria-label="Turn right"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
-    </div>
-  </div>
-</div>
-
-<div id="scare-overlay" class="pointer-events-none">
-  <div id="scare-content">
-    <h2 id="scare-title">Congrats bro, you found Rizal!</h2>
-    <p id="scare-desc">"Ang kabataan ang pag-asa ng bayan." You explored through the shadows and saved the hero waiting at the end of the maze!!!</p>
-    <button id="btn-replay" class="btn pointer-events-auto" style="pointer-events:auto">Go back in</button>
-  </div>
-</div>
-
-    <!-- MAIN JAVASCRIPT LOGIC -->
-    <script>
-        /**
-         * Horror Maze Game Logic & Three.js Engine (Optimized Performance)
-         */
-
-        // --- Maze Configuration & Data ---
-        const MAZE_SIZE = 11; // Must be odd for recursive backtracker algorithm
-        const CELL_SIZE = 4;  // Size of each grid cell in Three.js world coordinates
-        const WALL_HEIGHT = 4.5;
-        
-        let mazeGrid = []; // 0 = Path, 1 = Wall
-        let playerPos = { x: 1, z: 1 };
-        let playerAngle = 0; // 0 = facing South (+Z), PI/2 = West (-X), PI = North (-Z), 3PI/2 = East (+X)
-        let targetAngle = 0;
-        let isTransitioning = false;
-        let isFirstPerson = false;
-        let gameFinished = false;
-        let visX = CELL_SIZE, visZ = CELL_SIZE, bobT = 0, flick = 0;
-        let worldGroup, ceiling, glow, seen = [];
-        const FOG = 0.14;
-
-        // Reusable Vector singletons for GC optimization
-        const _tempDir = new THREE.Vector3();
-        const _p0 = new THREE.Vector3();
-        const _p1 = new THREE.Vector3();
-        const _q0 = new THREE.Quaternion();
-        const _q1 = new THREE.Quaternion();
-
-        // Goal position (Exit)
-        const exitPos = { x: MAZE_SIZE - 2, z: MAZE_SIZE - 2 };
-
-        // --- Audio Synthesizer (Web Audio API) ---
-        class HorrorAudio {
-            constructor() {
-                this.ctx = null;
-                this.droneNode = null;
-                this.windNode = null;
-                this.isMuted = false;
-                this.initialized = false;
-            }
-
-            init() {
-                if (this.initialized) return;
-                try {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioContext();
-                    this.ctx.resume();
-                    this.createAmbientDrone();
-                    this.initialized = true;
-                } catch(e) {
-                    console.log("Audio Context initialization failed", e);
-                }
-            }
-
-            createAmbientDrone() {
-                if (!this.ctx) return;
-
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                const filter = this.ctx.createBiquadFilter();
-
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(45, this.ctx.currentTime);
-
-                filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(120, this.ctx.currentTime);
-
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-
-                osc.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                this.droneNode = { osc, gain, filter };
-
-                this.startHeartbeat();
-            }
-
-            startHeartbeat() {
-                if (!this.ctx) return;
-                const heartbeatLoop = () => {
-                    if (this.isMuted || !this.initialized) {
-                        setTimeout(heartbeatLoop, 1200);
-                        return;
-                    }
-                    this.playSubThump();
-                    setTimeout(() => {
-                        this.playSubThump(0.7);
-                    }, 280);
-                    setTimeout(heartbeatLoop, 1400);
-                };
-                heartbeatLoop();
-            }
-
-            playSubThump(intensity = 1.0) {
-                if (!this.ctx || this.isMuted) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(60, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(20, this.ctx.currentTime + 0.25);
-
-                gain.gain.setValueAtTime(0.3 * intensity, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.25);
-
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.26);
-            }
-
-            playFootstep() {
-                if (!this.ctx || this.isMuted) return;
-                const bufferSize = this.ctx.sampleRate * 0.1;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'bandpass';
-                filter.frequency.value = 400;
-
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.08);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-
-                noise.start();
-            }
-
-            toggleMute() {
-                this.isMuted = !this.isMuted;
-                if (this.droneNode) {
-                    this.droneNode.gain.gain.setValueAtTime(this.isMuted ? 0 : 0.15, this.ctx.currentTime);
-                }
-                return this.isMuted;
-            }
-        }
-
-        // Procedurally generates an eerie canvas portrait of Dr. José Rizal
-function createRizalTexture() {
-    const canvas = document.createElement('canvas');
-    canvas.width = 256;
-    canvas.height = 340;
-    const ctx = canvas.getContext('2d');
-
-    // Dark vintage backdrop
-    const bgGrad = ctx.createRadialGradient(128, 170, 20, 128, 170, 160);
-    bgGrad.addColorStop(0, '#2a261f');
-    bgGrad.addColorStop(1, '#080806');
-    ctx.fillStyle = bgGrad;
-    ctx.fillRect(0, 0, 256, 340);
-
-    // Oval portrait frame
-    ctx.beginPath();
-    ctx.ellipse(128, 160, 95, 125, 0, 0, Math.PI * 2);
-    ctx.strokeStyle = '#8a7346';
-    ctx.lineWidth = 6;
-    ctx.stroke();
-    ctx.clip();
-
-    // Dark suit coat & high collar
-    ctx.fillStyle = '#0f1110';
-    ctx.beginPath();
-    ctx.moveTo(30, 320);
-    ctx.quadraticCurveTo(70, 220, 110, 210);
-    ctx.lineTo(146, 210);
-    ctx.quadraticCurveTo(186, 220, 226, 320);
-    ctx.fill();
-
-    // Collar detail
-    ctx.fillStyle = '#cfc7ad';
-    ctx.fillRect(115, 195, 26, 20);
-
-    // Face structure & iconic side-swept hair
-    ctx.fillStyle = '#b8a686';
-    ctx.beginPath();
-    ctx.ellipse(128, 150, 42, 54, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Hair
-    ctx.fillStyle = '#141210';
-    ctx.beginPath();
-    ctx.arc(128, 130, 46, Math.PI * 0.8, Math.PI * 2.1);
-    ctx.lineTo(82, 135);
-    ctx.fill();
-
-    // Eyes (dark hollow eerie gaze)
-    ctx.fillStyle = '#0a0a08';
-    ctx.beginPath();
-    ctx.ellipse(112, 148, 6, 4, 0, 0, Math.PI * 2);
-    ctx.ellipse(144, 148, 6, 4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Moustache & features
-    ctx.fillStyle = '#221e18';
-    ctx.beginPath();
-    ctx.ellipse(128, 174, 16, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    const texture = new THREE.CanvasTexture(canvas);
-    return texture;
-}
-
-        const audio = new HorrorAudio();
-
-        // --- Maze Generation (Recursive Backtracker) ---
-        function generateMaze(size) {
-            let grid = Array.from({ length: size }, () => Array(size).fill(1));
-
-            function carve(x, z) {
-                grid[z][x] = 0;
-                const dirs = [
-                    [0, -2], [0, 2], [-2, 0], [2, 0]
-                ].sort(() => Math.random() - 0.5);
-
-                for (let [dx, dz] of dirs) {
-                    let nx = x + dx, nz = z + dz;
-                    if (nx > 0 && nx < size - 1 && nz > 0 && nz < size - 1 && grid[nz][nx] === 1) {
-                        grid[z + dz / 2][x + dx / 2] = 0;
-                        carve(nx, nz);
-                    }
-                }
-            }
-
-            carve(1, 1);
-            grid[exitPos.z][exitPos.x] = 0;
-            return grid;
-        }
-
-        // --- Three.js World Setup ---
-        let scene, camera, renderer;
-        let flashlight, ambientLight;
-        let wallGroup, exitObject;
-        let cachedWallMaterials = null;
-        let cachedFloorMaterial = null;
-
-        function initThreeJS() {
-            const container = document.getElementById('canvas-container');
-            
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
-            scene.fog = new THREE.FogExp2(0x000000, 0);
-
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
-
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-            renderer.shadowMap.enabled = false; // Disabled costly shadow map for massive frame gains
-            container.appendChild(renderer.domElement);
-
-            ambientLight = new THREE.AmbientLight(0x7d8a72, 1);
-            scene.add(ambientLight);
-
-            flashlight = new THREE.SpotLight(0xffe6a8, 1.8, 16, Math.PI / 4.2, 0.55, 1.4);
-            glow = new THREE.PointLight(0xffd890, 0, 7, 2);
-            scene.add(glow);
-            scene.add(flashlight);
-            scene.add(flashlight.target);
-
-            mazeGrid = generateMaze(MAZE_SIZE);
-            build3DMaze();
-            setTopViewCamera();
-
-            window.addEventListener('resize', onWindowResize);
-        }
-
-        function createWallTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 128;
-            canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#1b2119';
-            ctx.fillRect(0, 0, 128, 128);
-
-            for (let i = 0; i < 1000; i++) {
-                const x = Math.random() * 128;
-                const y = Math.random() * 128;
-                ctx.fillStyle = `rgba(214,226,190,${Math.random() * 0.12})`;
-                ctx.fillRect(x, y, 2, 2);
-            }
-
-            for (let i = 0; i < 4; i++) {
-                const x = Math.random() * 128;
-                const y = Math.random() * 64;
-                const len = 20 + Math.random() * 40;
-                const grad = ctx.createLinearGradient(x, y, x, y + len);
-                grad.addColorStop(0, 'rgba(78, 46, 20, 0.55)');
-                grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                ctx.fillStyle = grad;
-                ctx.fillRect(x - 2, y, 4, len);
-            }
-
-            const texture = new THREE.CanvasTexture(canvas);
-            return texture;
-        }
-
-        function createFloorTexture() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 128;
-            canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-
-            ctx.fillStyle = '#0b0e0a';
-            ctx.fillRect(0, 0, 128, 128);
-
-            ctx.strokeStyle = '#1c2219';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(0, 0, 128, 128);
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
-            texture.repeat.set(MAZE_SIZE, MAZE_SIZE);
-            return texture;
-        }
-
-        function build3DMaze() {
-    if (worldGroup) scene.remove(worldGroup);
-    worldGroup = new THREE.Group();
-    scene.add(worldGroup);
-    wallGroup = worldGroup;
-
-    // Cache materials to avoid redundant instantiation & memory leaks
-    if (!cachedWallMaterials) {
-        cachedWallMaterials = [0, 1, 2, 3].map(() => new THREE.MeshStandardMaterial({
-            map: createWallTexture(),
-            roughness: 0.95,
-            metalness: 0
-        }));
-    }
-    if (!cachedFloorMaterial) {
-        cachedFloorMaterial = new THREE.MeshStandardMaterial({
-            map: createFloorTexture(),
-            roughness: 0.8
-        });
-    }
-
-    const wallGeometry = new THREE.BoxGeometry(CELL_SIZE, WALL_HEIGHT, CELL_SIZE);
-
-    // Build Floor
-    const floorGeo = new THREE.PlaneGeometry(MAZE_SIZE * CELL_SIZE, MAZE_SIZE * CELL_SIZE);
-    const floor = new THREE.Mesh(floorGeo, cachedFloorMaterial);
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set((MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2, 0, (MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2);
-    worldGroup.add(floor);
-
-    // Ceiling Mesh
-    ceiling = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: 0x10130e, roughness: 1 }));
-    ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.set(floor.position.x, WALL_HEIGHT, floor.position.z);
-    ceiling.visible = isFirstPerson;
-    worldGroup.add(ceiling);
-
-    // Build Wall Meshes
-    for (let z = 0; z < MAZE_SIZE; z++) {
-        for (let x = 0; x < MAZE_SIZE; x++) {
-            if (mazeGrid[z][x] === 1) {
-                const wall = new THREE.Mesh(wallGeometry, cachedWallMaterials[(x + z) % 4]);
-                wall.position.set(x * CELL_SIZE, WALL_HEIGHT / 2, z * CELL_SIZE);
-                wallGroup.add(wall);
-            }
-        }
-    }
-
-// --- Standing Rizal Image URL Billboard Exit ---
-    const textureLoader = new THREE.TextureLoader();
-    const rizalTexture = textureLoader.load('https://cdn.pixabay.com/photo/2022/04/10/04/24/jose-rizal-7122633_1280.png');
-    
-    const rizalMat = new THREE.MeshBasicMaterial({
-        map: rizalTexture,
-        side: THREE.DoubleSide,
-        transparent: true
-    });
-
-    // Vertical portrait sprite standing inside the corridor
-    const rizalGeo = new THREE.PlaneGeometry(2.6, 3.4);
-    exitObject = new THREE.Mesh(rizalGeo, rizalMat);
-    exitObject.position.set(exitPos.x * CELL_SIZE, 1.7, exitPos.z * CELL_SIZE);
-    worldGroup.add(exitObject);
-
-    // Pedestal under Rizal
-    const baseGeo = new THREE.CylinderGeometry(1.2, 1.4, 0.2, 16);
-    const baseMat = new THREE.MeshBasicMaterial({ color: 0x8a7346 });
-    const baseMesh = new THREE.Mesh(baseGeo, baseMat);
-    baseMesh.position.set(exitPos.x * CELL_SIZE, 0.1, exitPos.z * CELL_SIZE);
-    worldGroup.add(baseMesh);
-
-    // Eerie ambient point light casting over Rizal
-    const exitLight = new THREE.PointLight(0xe3d5a1, 2.5, 9);
-    exitLight.position.set(exitPos.x * CELL_SIZE, 2.2, exitPos.z * CELL_SIZE);
-    worldGroup.add(exitLight);
-
-    seen = Array.from({ length: MAZE_SIZE }, () => Array(MAZE_SIZE).fill(false));
-}
-
-        function setTopViewCamera() {
-            const cx = (MAZE_SIZE * CELL_SIZE) / 2 - CELL_SIZE / 2;
-            const half = (MAZE_SIZE * CELL_SIZE) / 2 + 3;
-            const t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-            const h = half / (t * Math.min(1, camera.aspect));
-            camera.position.set(cx, h, cx + 0.1);
-            camera.lookAt(cx, 0, cx);
-            ambientLight.intensity = 1;
-            scene.fog.density = 0;
-            flashlight.intensity = 0;
-            glow.intensity = 0;
-            if (ceiling) ceiling.visible = false;
-        }
-
-        function syncLights() {
-            camera.getWorldDirection(_tempDir);
-            flashlight.position.copy(camera.position);
-            flashlight.target.position.copy(camera.position).addScaledVector(_tempDir, 5);
-            glow.position.copy(camera.position);
-        }
-
-        function updateFirstPersonCamera(dt) {
-            const tx = playerPos.x * CELL_SIZE, tz = playerPos.z * CELL_SIZE;
-            const k = 1 - Math.exp(-dt * 9);
-            const moving = Math.min(Math.hypot(tx - visX, tz - visZ) / CELL_SIZE * 2, 1);
-            visX += (tx - visX) * k;
-            visZ += (tz - visZ) * k;
-            bobT += dt * 10 * moving;
-            const y = 1.7 + Math.sin(bobT) * 0.06 * moving;
-            camera.position.set(visX, y, visZ);
-            camera.lookAt(visX + Math.sin(playerAngle) * 5, y, visZ + Math.cos(playerAngle) * 5);
-            syncLights();
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            if (!isFirstPerson && !isTransitioning) setTopViewCamera();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // --- Mini-Map Canvas Rendering ---
-        const minimapCanvas = document.getElementById('minimap');
-        const minimapCtx = minimapCanvas.getContext('2d');
-
-        function drawMinimap() {
-            const w = minimapCanvas.clientWidth, h = minimapCanvas.clientHeight;
-            if (!w) return;
-            if (minimapCanvas.width !== w) { minimapCanvas.width = w; minimapCanvas.height = h; }
-            const g = minimapCtx, c = w / MAZE_SIZE;
-
-            for (let dz = -1; dz <= 1; dz++) {
-                for (let dx = -1; dx <= 1; dx++) {
-                    const sx = playerPos.x + dx, sz = playerPos.z + dz;
-                    if (seen[sz] && sx >= 0 && sx < MAZE_SIZE) seen[sz][sx] = true;
-                }
-            }
-
-            g.fillStyle = '#000';
-            g.fillRect(0, 0, w, h);
-            for (let z = 0; z < MAZE_SIZE; z++) {
-                for (let x = 0; x < MAZE_SIZE; x++) {
-                    if (!seen[z] || !seen[z][x]) continue;
-                    g.fillStyle = mazeGrid[z][x] === 1 ? '#3b4436' : '#14180f';
-                    g.fillRect(x * c, z * c, c, c);
-                }
-            }
-            if (seen[exitPos.z] && seen[exitPos.z][exitPos.x]) {
-                g.fillStyle = '#cfe8e0';
-                g.fillRect(exitPos.x * c + 2, exitPos.z * c + 2, c - 4, c - 4);
-            }
-
-            g.save();
-            g.translate((playerPos.x + 0.5) * c, (playerPos.z + 0.5) * c);
-            const th = Math.PI / 2 - playerAngle;
-            g.beginPath();
-            g.moveTo(0, 0);
-            g.arc(0, 0, c * 1.8, th - Math.PI / 5, th + Math.PI / 5);
-            g.closePath();
-            g.fillStyle = 'rgba(227, 213, 161, 0.25)';
-            g.fill();
-            g.beginPath();
-            g.arc(0, 0, c * 0.3, 0, Math.PI * 2);
-            g.fillStyle = '#e3d5a1';
-            g.fill();
-            g.restore();
-        }
-
-        // --- Player Controls & Movement Logic ---
-        function moveForward() {
-            if (isTransitioning || gameFinished) return;
-            const dx = Math.round(Math.sin(targetAngle));
-            const dz = Math.round(Math.cos(targetAngle));
-            const nx = playerPos.x + dx;
-            const nz = playerPos.z + dz;
-
-            if (mazeGrid[nz] && mazeGrid[nz][nx] === 0) {
-                playerPos.x = nx;
-                playerPos.z = nz;
-                audio.playFootstep();
-                checkWinCondition();
-            }
-        }
-
-        function moveBackward() {
-            if (isTransitioning || gameFinished) return;
-            const dx = Math.round(Math.sin(targetAngle));
-            const dz = Math.round(Math.cos(targetAngle));
-            const nx = playerPos.x - dx;
-            const nz = playerPos.z - dz;
-
-            if (mazeGrid[nz] && mazeGrid[nz][nx] === 0) {
-                playerPos.x = nx;
-                playerPos.z = nz;
-                audio.playFootstep();
-                checkWinCondition();
-            }
-        }
-
-        function turnLeft() {
-            if (isTransitioning || gameFinished) return;
-            targetAngle += Math.PI / 2;
-        }
-
-        function turnRight() {
-            if (isTransitioning || gameFinished) return;
-            targetAngle -= Math.PI / 2;
-        }
-
-        function checkWinCondition() {
-            if (playerPos.x === exitPos.x && playerPos.z === exitPos.z) {
-                gameFinished = true;
-                setTimeout(triggerWinScare, 300);
-            }
-        }
-
-        function triggerWinScare() {
-            const overlay = document.getElementById('scare-overlay');
-            const content = document.getElementById('scare-content');
-            overlay.classList.remove('pointer-events-none');
-            overlay.style.opacity = '1';
-            content.style.transform = 'scale(1)';
-
-            flashlight.intensity = 5;
-            flashlight.color.setHex(0xdff5ee);
-            audio.playSubThump(2.0);
-        }
-
-        window.addEventListener('keydown', (e) => {
-            if (!isFirstPerson || gameFinished) return;
-            if (e.key.startsWith('Arrow')) e.preventDefault();
-            switch(e.key.toLowerCase()) {
-                case 'w':
-                case 'arrowup':
-                    moveForward();
-                    break;
-                case 's':
-                case 'arrowdown':
-                    moveBackward();
-                    break;
-                case 'a':
-                case 'arrowleft':
-                    turnLeft();
-                    break;
-                case 'd':
-                case 'arrowright':
-                    turnRight();
-                    break;
-            }
-        });
-
-        // --- Transition from Intro to 1st Person POV ---
-        function transitionToFirstPerson() {
-            if (isTransitioning || isFirstPerson) return;
-            isTransitioning = true;
-            audio.init();
-
-            const intro = document.getElementById('intro-overlay');
-            intro.style.opacity = '0';
-            setTimeout(() => intro.classList.add('hidden'), 1200);
-
-            const tx = playerPos.x * CELL_SIZE, tz = playerPos.z * CELL_SIZE;
-            _p0.copy(camera.position);
-            _q0.copy(camera.quaternion);
-
-            _p1.set(tx, 1.7, tz);
-            camera.position.copy(_p1);
-            camera.lookAt(tx + Math.sin(playerAngle) * 5, 1.7, tz + Math.cos(playerAngle) * 5);
-            _q1.copy(camera.quaternion);
-
-            const t0 = performance.now(), dur = 3000;
-
-            function step(now) {
-                const p = Math.min(Math.max((now - t0) / dur, 0), 1);
-                const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-                camera.position.lerpVectors(_p0, _p1, e);
-                camera.quaternion.copy(_q0).slerp(_q1, e);
-                ambientLight.intensity = 1 - 0.88 * e;
-                scene.fog.density = FOG * e;
-                flashlight.intensity = 1.8 * e;
-                glow.intensity = 0.7 * e;
-                ceiling.visible = e > 0.7;
-                syncLights();
-
-                if (p < 1) {
-                    requestAnimationFrame(step);
-                } else {
-                    visX = tx; visZ = tz;
-                    isTransitioning = false;
-                    isFirstPerson = true;
-                    const hud = document.getElementById('hud-overlay');
-                    hud.classList.remove('hidden');
-                    setTimeout(() => hud.style.opacity = '1', 50);
-                }
-            }
-            requestAnimationFrame(step);
-        }
-
-        function resetRun() {
-            gameFinished = false;
-            playerPos = { x: 1, z: 1 };
-            playerAngle = targetAngle = 0;
-            visX = visZ = CELL_SIZE;
-            flick = 0;
-            flashlight.intensity = 1.8;
-            flashlight.color.setHex(0xffe6a8);
-            seen = Array.from({ length: MAZE_SIZE }, () => Array(MAZE_SIZE).fill(false));
-            const overlay = document.getElementById('scare-overlay');
-            overlay.style.opacity = '0';
-            overlay.classList.add('pointer-events-none');
-            document.getElementById('scare-content').style.transform = 'scale(0.97)';
-        }
-
-        function restartGame() { resetRun(); }
-
-        function replayGame() {
-            mazeGrid = generateMaze(MAZE_SIZE);
-            build3DMaze();
-            resetRun();
-        }
-
-        // --- Animation Loop ---
-        let lastTime = 0;
-        function animate(time) {
-            if (exitObject) {
-                exitObject.lookAt(camera.position.x, 1.6, camera.position.z);
-            }
-
-            requestAnimationFrame(animate);
-            const dt = Math.min(Math.max((time - lastTime) / 1000, 0), 0.1);
-            lastTime = time;
-
-            if (isFirstPerson) {
-                playerAngle += (targetAngle - playerAngle) * (1 - Math.exp(-dt * 9));
-                updateFirstPersonCamera(dt);
-                drawMinimap();
-                if (!gameFinished) {
-                    if (Math.random() < 0.004) flick = 1;
-                    flick = Math.max(0, flick - dt * 2.5);
-                    flashlight.intensity = 1.8 - flick * (0.4 + Math.random() * 0.9);
-                    glow.intensity = 0.7 - flick * 0.4;
-                }
-            }
-            if (exitObject) exitObject.rotation.y += dt;
-            renderer.render(scene, camera);
-        }
-
-        // --- Attach Event Listeners ---
-        window.onload = () => {
-            initThreeJS();
-
-            setTimeout(() => {
-                const intro = document.getElementById('intro-overlay');
-                intro.style.opacity = '1';
-            }, 200);
-
-            document.getElementById('btn-enter').addEventListener('click', transitionToFirstPerson);
-            
-            document.getElementById('btn-fwd').addEventListener('click', moveForward);
-            document.getElementById('btn-bwd').addEventListener('click', moveBackward);
-            document.getElementById('btn-left').addEventListener('click', turnLeft);
-            document.getElementById('btn-right').addEventListener('click', turnRight);
-
-            document.getElementById('btn-audio').addEventListener('click', () => {
-                const muted = audio.toggleMute();
-                const icon = document.getElementById('audio-icon');
-                icon.textContent = muted ? 'Sound off' : 'Sound on';
-            });
-
-            document.getElementById('btn-restart').addEventListener('click', restartGame);
-            document.getElementById('btn-replay').addEventListener('click', replayGame);
-
-            animate(0);
-        };
-    </script>
-</body>
-</html>
+<div id="hint"><h2>Find the plaques to unlock the exit</h2><p>Red crosses mark dead ends.</p></div><div id="toast"></div>
+<div id="fm" hidden><div class="fmb"><canvas id="fmc"></canvas><div class="fmt"><button id="fmtrail">Trail: On</button><button id="fmx">Close</button></div>
+<p class="fml">Gold circles are plaques; dim ones are read, and clicking one reopens it. Red crosses are dead ends. The marker on the bottom edge is the exit.</p></div></div>
+<aside id="sheet"></aside>
+<div id="end"><h2>30 December 1896</h2>
+<p>Rizal’s execution at Bagumbayan, now known as Rizal Park in Manila. He was only 35 years old.</p>
+<p>The day before, he told his sister Trinidad about his last poem, hidden inside a small alcohol stove: “Mi Último Adiós” (“My Last Farewell”), in which he expressed his love for the Philippines and his willingness to sacrifice his life for his country.</p>
+<button id="ej" class="btn">Read the journal</button><button id="ea" class="btn">Walk again</button></div>
+<script>
+/* ===== CONTENT (from RIZAL_MAZE.pdf) =====
+   p: 'Lead|text' (or plain text). Lead 'q' = quotation.
+   MEDIA: i = image (URL or file next to this html), c = caption,
+          v = YouTube ID or .mp4/.webm path, l = [[label,url]]  */
+const E=[
+{y:'1820',t:'Liberalism in Spain',p:['The French Revolution introduced the idea of freedom and the rights of a citizen in their own country, liberalism, and the United States for democracy.','The liberal ideas spread all over Spain, which later influenced the reformist ideas of the Filipinos greatly.']},
+{y:'1860–69',t:'Comité de Reformadores',p:['Who|A group of Filipino reformists who wanted changes in the Spanish government, specifically in its treatment of Filipinos.','Why|The liberal ideas of 1820 inspired them: they also deserved freedom, equal treatment, fair laws, and representation in the Spanish Cortes.','Hope|Carlos Maria Dela Torre was appointed governor general and introduced a more liberal administration, which gave Filipinos more hope.','Next|These demands helped prepare the way for the Propaganda Movement, which Rizal later joined.'],l:[['Propaganda Movement','https://en.wikipedia.org/wiki/Propaganda_Movement']]},
+{y:'1872',t:'Izquierdo and the Cavite Mutiny',p:['Rafael de Izquierdo|Dela Torre was replaced by Izquierdo, who was stricter in governing the Filipino people. He wanted to maintain the authority and control of the Spaniards; the liberal space Filipinos had experienced was restricted and limited.','Cavite Mutiny|A mutiny by native Filipino soldiers and laborers of the Cavite arsenal, who were dissatisfied with the abolition of their privileges.'],l:[['Cavite mutiny','https://en.wikipedia.org/wiki/Cavite_mutiny']]},
+{y:'1872',t:'Gomburza and a New Direction',p:['Gomburza|Their execution led to the beginning of Filipino nationalism.','Comité de Propaganda|The Comité de Reformadores changed into the Comité de Propaganda, a proto-nationalist group that included Paciano Mercado, Rizal’s older brother.','Ateneo|Rizal decided to study at Ateneo Municipal de Manila to maximize opportunities.','Rizal|He changed his surname to Rizal so he could embrace his patria grande.'],l:[['Gomburza','https://en.wikipedia.org/wiki/Gomburza']]},
+{y:'1882',t:'Sent Abroad',p:['Rizal was sent abroad for a special mission: collecting the nation-building template and placing the Philippines on the map of the sovereign world.','El Amor Patrio|He wrote this essay in 1882.']},
+{y:'1888–89',t:'Why London?',p:['May 1888 – March 1889|','To improve his knowledge of the English language.','To study and annotate Morga’s Sucesos de las Islas Filipinas, a rare copy available only in the British Museum.','To immerse deeply in Filipiniana studies.'],l:[['Sucesos de las Islas Filipinas','https://en.wikipedia.org/wiki/Sucesos_de_las_Islas_Filipinas']]},
+{y:'1889',t:'Writings from London',p:['La Visión del Fray Rodríguez|A satire: a spirited dialogue between St. Augustine and Fr. Rodriguez. God’s message informs the friar of his stupidity and penance on earth: he shall continue to write imbecilities so that all men may laugh at him.','Why|Fr. Rodriguez had attacked the Noli in a pamphlet, Cuestiones de Sumo Interes.','Trübner’s Record|Rizal contributed to this Asian studies journal: “Specimens of Tagal Folklore” and “Two Eastern Fables” (June 1889).','Recognition|The Dutch Dr. H. Kern mentioned him in a paper presented at the 1889 International Congress of Orientalists.']},
+{y:'1889',t:'Asociación Hispano-Filipina',p:['Established in Madrid to promote reforms and improve the welfare of the Philippines.','Political|M.H. del Pilar','Literary|Mariano Ponce','Sports|Arejola']},
+{y:'1889',t:'The Paris Clusters',p:['Samahang Kidlat|A temporary social club that brought kababayans together in Paris during the Exposition and lessened the burden of the high cost of living.','Indios Bravos|Formed from Samahang Kidlat, inspired by the Buffalo Bill Exhibition, where American Indians wore war paints and feathers and rode horses proudly like centaurs. Like Filipinos, they were called indios, yet looked tall, dignified, proud and powerfully built.','Rizal enjoined Filipinos to be proud of the name “indio” and to yield the power to change the perception of the term. They pledged to work toward physical prowess, intellectual perfection, and moral seriousness.']},
+{y:'1889',t:'Redemption and Science',p:['Sociedad R.D.L.M.|Redención de los Malayos. Its ultimate objective was the redemption of the Malays, of whom Rizal considered the Filipinos one. It sought to disseminate ideas of scientific, artistic, and cultural value.','Asociación Internacional de Filipinistas|Founded in Paris, 1889, to study the Philippines from the scientific and historical point of view. Its members were scientists from different fields, establishing the scientific bases of the existence of the Philippines as a distinct country and nation. It planned a congress to present recent studies.','In a 1889 letter to Ferdinand Blumentritt, Rizal gave an outline for the Congress, showing how deeply he wanted the Philippines to be known to the world.']},
+{y:'15 Feb 1889',t:'La Solidaridad',p:['The first issue was published on February 15, 1889. It became the official organ of the Comité de Propaganda.','Goals|Fight all forms of reaction. Prevent retrogression. Support liberal ideas and progress. Promote democracy in the Philippines and throughout the world.','It promoted democracy and the right of nations to self-determination.'],l:[['La Solidaridad','https://en.wikipedia.org/wiki/La_Solidaridad']]},
+{y:'1889',t:'Essays in La Solidaridad',p:['Sobre la Indolencia de los Filipinos|Examined the alleged laziness of Filipinos and the historical conditions that contributed to it.','Filipinas dentro de cien años|Discussed the possible future of the Philippines under Spanish colonial rule.']},
+{y:'1890',t:'The Shift',p:['Toward the end of 1890, a confluence of developments shifted not just the editorship but also the publicized aims of La Solidaridad.','Rizal’s nostalgia|He became more mindful of visions of his death, which, unnegotiably, should happen in his home country.','Rizal’s focus|He grew convinced that everything to be written in the Sol had already been written, and focused on finishing the two legs of his magnum opus.','Del Pilar|He felt ideas aligned with masonry should be reflected more in the Sol, so that Filipino lodges might be recognized by the Gran Oriente Español.']},
+{y:'1890',t:'Under Del Pilar',p:['With less involvement from Rizal, the aims under Marcelo H. del Pilar became:','Removal of the friars and secularization of the parishes','Active participation in the affairs of the government','Freedom of speech, affairs, and assembly','Equality before the law','Assimilation of the Philippines to Madre España','Representation in the Spanish Cortes','q|“Now, I tell you. I have lost my hope in Spain. For that reason, I shall not write one more word in La Solidaridad. It seems to me it is in vain… the real battleground is in the Philippines—and I shall now go home.”']},
+{y:'1891',t:'Hong Kong',p:['Family reunion|Rizal reunited with his family after being separated from them.','Borneo Colonization Project|He planned to relocate landless Filipino families to North Borneo and establish a new community called “New Calamba,” but the plan failed due to logistical problems.','Writings for Filipinos|Essays defending the rights of Filipinos and exposing the injustices experienced by the people of Calamba.','Criticism and reform|He praised the humane British prison system and criticized Manila’s frequent fires.','Last letters|Letters intended to be opened only after his death.']},
+{y:'1891',t:'Writings of 1891',p:['Ang Mga Karapatan ng Tao|A translation of The Rights of Man, from the 1789 French Revolution.','A la Nación Española|An appeal regarding the unjust situation and oppression in Calamba.','Sa Mga Kababayan|Written to explain the Calamba situation to his countrymen.','Una Visita a la Victoria Gaol|An essay praising the humane British prison system.','La Mano Roja|A critique of the frequent and suspicious fires in Manila.','Last Letters|Final letters intended to be opened only after his death.']},
+{y:'1891–92',t:'The Hong Kong Years',p:['Reunited with his family.','Practiced medicine to earn money and raise funds for the nationalist movement.','Developed the Borneo Colonization Project, which aimed to transfer landless Filipino families to British North Borneo and establish “New Calamba.”','Successfully negotiated with British authorities, but the project did not happen because of logistical difficulties.']},
+{y:'3 Jul 1892',t:'La Liga Filipina',p:['Rizal founded it on July 3, 1892, at Ilaya Street, Tondo, Manila. He personally wrote its constitution and set five major objectives:','National Unity|Unite the entire archipelago into one strong and united community.','Mutual Protection|Help and protect one another in times of need.','Defense Against Injustice|Protect members against violence and injustice.','Education and Economy|Encourage education, agriculture, industry, and commerce.','Application of Reforms|Study and apply reforms that would benefit the country.'],l:[['La Liga Filipina','https://en.wikipedia.org/wiki/La_Liga_Filipina']]},
+{y:'1892',t:'What the Liga Offered',p:['It also aimed to improve the lives of members and their families through:','Providing scholarships for members and their children','Supporting poor and oppressed people','Helping members who experienced financial losses','Providing capital for agriculture and industries','Introducing machines and developing industries','Establishing shops, stores, and businesses']},
+{y:'Jun–Jul 1896',t:'The Katipunan Calls',p:['June|The Katipunan sends an envoy to ask Rizal to support the revolt. Rizal tells them the country is not ready.','July 1|Rizal confers with Pio Valenzuela on the Katipunan’s plans for an armed uprising.','July 30|Rizal receives…','July 31|Rizal leaves Dapitan; his request to serve as a volunteer army doctor in Cuba is granted.'],l:[['Katipunan','https://en.wikipedia.org/wiki/Katipunan']]},
+{y:'Aug–Oct 1896',t:'Revolution and Arrest',p:['August|The Katipunan is discovered on August 19; the revolution under Andres Bonifacio begins.','September 3|Boards the Isla de Panay, sailing to Spain, still expecting to go on to Cuba.','October 6|Detained in Barcelona: arrested, held in Montjuïc Castle, and put aboard the Colón, bound back to Manila.']},
+{y:'Nov–Dec 1896',t:'Fort Santiago',p:['November 3|Arrives in Manila as a prisoner and is held in Fort Santiago to await trial.','December 26|After a one-day court-martial, he is found guilty of rebellion, sedition, and forming illegal associations, and sentenced to death.','December 28|Governor-General Camilo de Polavieja confirms the sentence and sets the execution for the morning of December 30.'],l:[['Fort Santiago','https://en.wikipedia.org/wiki/Fort_Santiago']]},
+{y:'29–30 Dec 1896',t:'Mi Último Adiós',p:['December 29|Rizal says goodbye to his family and tells his sister Trinidad about his last poem, hidden inside a small alcohol stove: “Mi Último Adiós” (“My Last Farewell”), in which he expressed his love for the Philippines and his willingness to sacrifice his life for his country.','December 30|Rizal’s execution at Bagumbayan, now known as Rizal Park in Manila. He was only 35 years old.'],l:[['Mi Último Adiós','https://en.wikipedia.org/wiki/Mi_%C3%9Altimo_Adi%C3%B3s']]}
+];
+
+/* ===== SOUND: all synthesized, no loops of melody ===== */
+const snd={x:null,mute:0,
+init(){if(this.x)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const x=this.x=new A,o=this.o=x.createGain();o.connect(x.destination);
+ const n=this.n=x.createBuffer(1,x.sampleRate*2,x.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+ const ir=x.createBuffer(2,x.sampleRate*2.5,x.sampleRate);for(let c=0;c<2;c++){const e=ir.getChannelData(c);for(let i=0;i<e.length;i++)e[i]=(Math.random()*2-1)*Math.pow(1-i/e.length,3)}
+ const cv=this.rv=x.createConvolver();cv.buffer=ir;const rg=x.createGain();rg.gain.value=.6;cv.connect(rg);rg.connect(o);
+ const w=x.createBufferSource();w.buffer=n;w.loop=true;const f=x.createBiquadFilter();f.type='bandpass';f.frequency.value=380;f.Q.value=.7;
+ const g=this.wg=x.createGain();g.gain.value=.05;const l=x.createOscillator(),lg=x.createGain();l.frequency.value=.06;lg.gain.value=140;l.connect(lg);lg.connect(f.frequency);l.start();
+ w.connect(f);f.connect(g);g.connect(o);w.start();[55,55.7].forEach(q=>{const u=x.createOscillator(),a=x.createGain();u.frequency.value=q;a.gain.value=.016;u.connect(a);a.connect(o);u.start()});this.loop();this.music()},
+N(f,q,d,g,t=0,ty='lowpass'){const x=this.x;if(!x)return;const s=x.createBufferSource();s.buffer=this.n;s.playbackRate.value=.8+Math.random()*.4;
+ const fl=x.createBiquadFilter();fl.type=ty;fl.frequency.value=f;fl.Q.value=q;const a=x.createGain(),T=x.currentTime+t;
+ a.gain.setValueAtTime(0,T);a.gain.linearRampToValueAtTime(g,T+.006);a.gain.exponentialRampToValueAtTime(.0001,T+d);
+ s.connect(fl);fl.connect(a);a.connect(this.o);s.start(T,Math.random());s.stop(T+d+.05)},
+T(f0,f1,d,g,t=0,rv=0){const x=this.x;if(!x)return;const s=x.createOscillator(),a=x.createGain(),T=x.currentTime+t;
+ s.frequency.setValueAtTime(f0,T);s.frequency.exponentialRampToValueAtTime(f1,T+d);
+ a.gain.setValueAtTime(0,T);a.gain.linearRampToValueAtTime(g,T+.01);a.gain.exponentialRampToValueAtTime(.0001,T+d);
+ s.connect(a);a.connect(this.o);if(rv)a.connect(this.rv);s.start(T);s.stop(T+d+.05)},
+step(){this.N(380+Math.random()*260,.8,.09,.2);this.T(95,48,.1,.14)},
+bump(){this.T(70,38,.16,.2);this.N(220,.5,.12,.1)},
+page(){for(let i=0;i<6;i++)this.N(2200+Math.random()*1800,1.2,.05,.05,i*.045+Math.random()*.02,'bandpass')},
+find(){this.T(988,986,2.4,.03,0,1);this.T(2730,2725,1.2,.008,0,1)},
+bell(f=165,v=1){[[.5,1],[1,.8],[1.19,.5],[1.56,.35],[2,.45],[2.51,.25],[3,.15]].forEach(([r,a])=>this.T(f*r,f*r*.998,5/Math.pow(r+.5,.4),.03*a*v,0,1))},
+chords:[[146.83,220,329.63,349.23],[116.54,174.61,220,293.66],[98,146.83,233.08,349.23],[110,146.83,164.81,196]],ci:0,
+pad(f,d,g){const x=this.x,t=x.currentTime;[0,5].forEach(c=>{const o=x.createOscillator(),a=x.createGain(),fl=x.createBiquadFilter();o.type='triangle';o.frequency.value=f;o.detune.value=c*(.5+Math.random());
+ fl.type='lowpass';fl.frequency.value=650;a.gain.setValueAtTime(0,t);a.gain.linearRampToValueAtTime(g,t+d*.4);a.gain.linearRampToValueAtTime(0,t+d);o.connect(fl);fl.connect(a);a.connect(this.mg);o.start(t);o.stop(t+d+.1)})},
+music(){const x=this.x;this.mg=x.createGain();this.mg.connect(this.o);this.mg.connect(this.rv);
+ const ch=()=>{if(!this.mute)this.chords[this.ci++%4].forEach(f=>this.pad(f,12,.008));setTimeout(ch,10500)};
+ const mel=()=>{if(!this.mute&&mode!=='end'){const n=[392,440,523.25,587.33,698.46][Math.random()*5|0];this.T(n,n*.999,3.4,.016,0,1)}setTimeout(mel,2800+Math.random()*5500)};
+ ch();setTimeout(mel,6000)},
+rattle(){[0,.07,.15,.24].forEach(t=>{this.N(2600+Math.random()*1500,2,.05,.07,t,'bandpass');this.T(180,120,.08,.08,t)});this.T(70,45,.2,.15)},
+unlock(){this.T(520,500,.12,.12);this.N(1500,3,.06,.1,.05,'bandpass');this.T(65,40,.5,.18,.5);this.N(500,1,1.6,.1,.9)},
+drip(){this.T(2300+Math.random()*500,950,.07,.025,0,1)},
+loop(){setTimeout(()=>{if(mode==='play'&&!this.mute){if(Math.random()<.3)this.bell(150+Math.random()*30,.7);else this.drip()}this.loop()},12000+Math.random()*22000)},
+dawn(){if(!this.x)return;const g=this.wg.gain;g.setTargetAtTime(.012,this.x.currentTime,2.5);[0,3.8,7.6].forEach(t=>setTimeout(()=>this.bell(196,1.4),t*1000))},
+toggle(){this.mute^=1;if(this.o)this.o.gain.value=this.mute?0:1;return this.mute}};
+
+/* ===== MAZE ===== */
+const N=41,CS=4,WH=3.6,EX=N-2,EZ=N-1,D=[[0,1],[0,-1],[1,0],[-1,0]],$=s=>document.querySelector(s);
+let G,dead,st,seen,pos,ang,tAng,vx,vz,bob=0,mode='intro',read=new Set(),near=-1,dirty=1,endT=0,endShown=0,last=0,trail=[1,1],locked=true,stepT=9,bumpT=9,stepSide=1,showTrail=true,endFrom,lookFrom,moon,wander,dust,door;
+let scene,cam,ren,amb,lamp,grp,ceil,glow,sun,T={},lookV=new THREE.Vector3(),CX=(N-1)*CS/2;
+const NIGHT=new THREE.Color(0x0a0c10),DAWN=new THREE.Color(0xe0a56a);
+
+function gen(){const g=Array.from({length:N},()=>Array(N).fill(1)),s=[[1,1]];g[1][1]=0;
+ while(s.length){const[x,z]=s[s.length-1],o=[[0,-2],[0,2],[-2,0],[2,0]].filter(([a,b])=>{const X=x+a,Z=z+b;return X>0&&Z>0&&X<N-1&&Z<N-1&&g[Z][X]});
+  if(!o.length){s.pop();continue}const[a,b]=o[Math.random()*o.length|0];g[z+b/2][x+a/2]=0;g[z+b][x+a]=0;s.push([x+a,z+b])}
+ g[EZ][EX]=0;return g}
+function route(){const prev=new Int16Array(N*N).fill(-2),q=[N+1];prev[N+1]=-1;
+ for(let i=0;i<q.length;i++){const c=q[i],x=c%N,z=c/N|0;for(const[a,b]of D){const X=x+a,Z=z+b,k=Z*N+X;if(G[Z]&&G[Z][X]===0&&prev[k]===-2){prev[k]=c;q.push(k)}}}
+ const p=[];for(let c=EZ*N+EX;c!==-1;c=prev[c])p.push(c);return p.reverse()}
+function straight(x,z){const o=(a,b)=>G[z+b][x+a]===0,w=(a,b)=>G[z+b][x+a]===1;
+ if(w(-1,0)&&w(1,0)&&o(0,-1)&&o(0,1))return[1,0];if(w(0,-1)&&w(0,1)&&o(-1,0)&&o(1,0))return[0,1];return 0}
+function layout(){let path;do{G=gen();path=route()}while(path.length<190);
+ dead=[];for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){if(G[z][x]||(x===1&&z===1)||(x===EX&&z===EZ))continue;
+  const op=D.filter(([a,b])=>G[z+b][x+a]===0);if(op.length===1)dead.push({x,z,o:op[0]})}
+ st=[];let lastI=0;const L=path.length,K=E.length;
+ for(let k=0;k<K;k++){const tg=Math.round((k+.5)*(L-6)/K)+3;let pick=null;
+  for(let o=0;o<=8&&!pick;o++)for(const s of[o,-o]){const i=tg+s;if(i<3||i>L-3||i<=lastI+5)continue;const c=path[i],x=c%N,z=c/N|0,ax=straight(x,z);
+   if(ax){const sg=Math.random()<.5?1:-1;pick={x,z,i,w:[ax[0]*sg,ax[1]*sg]};break}}
+  if(!pick){const i=Math.max(tg,lastI+1),c=path[i],x=c%N,z=c/N|0;pick={x,z,i,w:D.find(([a,b])=>G[z+b][x+a]===1)}}
+  lastI=pick.i;pick.n=k;st.push(pick)}}
+
+/* ===== TEXTURES ===== */
+const cvs=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return[c,c.getContext('2d')]};
+const tex=(c,r)=>{const t=new THREE.CanvasTexture(c);t.anisotropy=4;if(r){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(r,r)}return t};
+function speckle(x,n){for(let i=0;i<n;i++){x.fillStyle=`rgba(${Math.random()<.5?'0,0,0':'210,190,140'},${Math.random()*.07})`;x.fillRect(Math.random()*256,Math.random()*256,2,2)}}
+function wallTex(){const[c,x]=cvs(256,256);x.fillStyle='#24201a';x.fillRect(0,0,256,256);
+ for(let r=0;r<4;r++)for(let b=-1;b<3;b++){const v=Math.random()*16-8|0,l=b*128+(r%2?64:0);x.fillStyle=`rgb(${78+v},${70+v},${58+v})`;x.fillRect(l+2,r*64+2,124,60)}
+ speckle(x,2600);return tex(c)}
+function floorTex(){const[c,x]=cvs(256,256);x.fillStyle='#17120e';x.fillRect(0,0,256,256);
+ for(let i=0;i<2;i++)for(let j=0;j<2;j++){const v=Math.random()*14-7|0;x.fillStyle=`rgb(${66+v},${46+v},${34+v})`;x.fillRect(i*128+3,j*128+3,122,122)}
+ speckle(x,2600);return tex(c,N)}
+function crossTex(){const[c,x]=cvs(256,256);x.lineCap='round';x.strokeStyle='#8e1d18';
+ for(let p=0;p<3;p++){x.globalAlpha=.55;x.lineWidth=20-p*4;const j=()=>Math.random()*10-5;
+  x.beginPath();x.moveTo(44+j(),40+j());x.lineTo(212+j(),216+j());x.moveTo(212+j(),40+j());x.lineTo(44+j(),216+j());x.stroke()}
+ return tex(c)}
+function plateTex(e,w,h,big){const[c,x]=cvs(w,h);x.fillStyle=big?'#1b1711':'#231d14';x.fillRect(0,0,w,h);x.strokeStyle='#a8873a';x.lineWidth=3;
+ x.strokeRect(14,14,w-28,h-28);x.strokeRect(22,22,w-44,h-44);x.textAlign='center';x.fillStyle='#d4af37';
+ let f=big?92:64;x.font=`700 ${f}px Cinzel,serif`;while(x.measureText(e.y).width>w-90)x.font=`700 ${f-=4}px Cinzel,serif`;x.fillText(e.y,w/2,h*.48);
+ x.fillStyle='#d9cfae';x.font=`italic ${big?34:30}px "IM Fell English",serif`;
+ const ws=e.t.split(' ');let a='',b='';ws.forEach(s=>{if(!b&&x.measureText(a+' '+s).width<w-110)a+=' '+s;else b+=' '+s});
+ x.fillText(a.trim(),w/2,h*.48+48);if(b)x.fillText(b.trim(),w/2,h*.48+86);return c}
+function redTex(){const[c,x]=cvs(128,128);const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(190,28,22,.6)');g.addColorStop(1,'rgba(190,28,22,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return tex(c)}
+function doorTex(){const[c,x]=cvs(256,372);x.fillStyle='#120d08';x.fillRect(0,0,256,372);
+ for(let i=0;i<6;i++){const v=Math.random()*14-7|0;x.fillStyle=`rgb(${74+v},${48+v},${28+v})`;x.fillRect(i*42+2,0,38,372)}
+ [60,300].forEach(y=>{x.fillStyle='#17140f';x.fillRect(0,y,256,22);for(let i=0;i<6;i++){x.fillStyle='#3a342a';x.beginPath();x.arc(14+i*45,y+11,4,0,7);x.fill()}});
+ x.strokeStyle='#17140f';x.lineWidth=8;x.beginPath();x.arc(36,196,18,0,7);x.stroke();speckle(x,1500);return c}
+function signTex(){const[c,x]=cvs(512,90);x.fillStyle='#1a1209';x.fillRect(0,0,512,90);x.strokeStyle='#a8873a';x.lineWidth=3;x.strokeRect(6,6,500,78);
+ x.fillStyle='#d4af37';x.textAlign='center';x.font='700 52px Cinzel,serif';x.fillText('EXIT',256,64);return tex(c)}
+function lockTex(){const[c,x]=cvs(512,96);x.fillStyle='#1b1a17';x.fillRect(0,34,512,28);x.fillStyle='#37332b';for(let i=0;i<16;i++)x.fillRect(i*32+4,30,24,36);
+ x.strokeStyle='#59564d';x.lineWidth=9;x.beginPath();x.arc(256,42,24,Math.PI,0);x.stroke();x.fillStyle='#8a6a2a';x.fillRect(214,42,84,48);
+ x.fillStyle='#120d08';x.beginPath();x.arc(256,62,7,0,7);x.fill();x.fillRect(253,64,6,16);return tex(c)}
+function makeDoor(){const zD=EZ*CS+CS/2-.25,L=CS/2,gm=new THREE.PlaneGeometry(L,2.9);gm.rotateY(Math.PI);gm.translate(L/2,1.45,0);
+ const t=tex(doorTex()),mk=()=>new THREE.MeshLambertMaterial({map:t,side:THREE.DoubleSide}),gl=new THREE.Group(),gr=new THREE.Group(),ml=new THREE.Mesh(gm,mk()),mr=new THREE.Mesh(gm,mk());
+ mr.scale.x=-1;gl.add(ml);gr.add(mr);gl.position.set(EX*CS-CS/2,0,zD);gr.position.set(EX*CS+CS/2,0,zD);
+ const sg=new THREE.PlaneGeometry(CS,.7);sg.rotateY(Math.PI);const sn=new THREE.Mesh(sg,new THREE.MeshLambertMaterial({map:signTex()}));sn.position.set(EX*CS,3.25,zD);
+ const lg=new THREE.PlaneGeometry(CS*.95,.6);lg.rotateY(Math.PI);const lk=new THREE.Mesh(lg,new THREE.MeshLambertMaterial({map:lockTex(),transparent:true}));lk.position.set(EX*CS,1.45,zD-.06);
+ glow=new THREE.Mesh(new THREE.PlaneGeometry(14,WH+2),new THREE.MeshBasicMaterial({map:glowTex(),fog:false}));glow.rotation.y=Math.PI;glow.position.set(EX*CS,WH/2,EZ*CS+CS/2+1.6);
+ grp.add(gl,gr,sn,lk,glow);door={o:0,sh:0,gl,gr,lock:lk}}
+function glowTex(){const[c,x]=cvs(64,256);const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#0f1319');g.addColorStop(1,'#4b3822');x.fillStyle=g;x.fillRect(0,0,64,256);return tex(c)}
+
+/* ===== SCENE ===== */
+function initScene(){scene=new THREE.Scene();scene.background=NIGHT.clone();scene.fog=new THREE.FogExp2(0x0b0a08,.0035);
+ cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.5,600);
+ ren=new THREE.WebGLRenderer({antialias:false,powerPreference:'high-performance'});ren.setPixelRatio(Math.min(devicePixelRatio,1.25));ren.setSize(innerWidth,innerHeight);$('#c').appendChild(ren.domElement);
+ amb=new THREE.AmbientLight(0xffe6c8,.5);scene.add(amb);
+ moon=new THREE.DirectionalLight(0x9fb4d8,.55);moon.position.set(-60,100,30);scene.add(moon);
+ wander=new THREE.PointLight(0xffb866,2.2,80,1);scene.add(wander);
+ const dp=new Float32Array(900);for(let i=0;i<300;i++){dp[i*3]=Math.random()*N*CS;dp[i*3+1]=2+Math.random()*28;dp[i*3+2]=Math.random()*N*CS}
+ const dg=new THREE.BufferGeometry();dg.setAttribute('position',new THREE.BufferAttribute(dp,3));
+ dust=new THREE.Points(dg,new THREE.PointsMaterial({color:0xffd9a0,size:1.3,transparent:true,opacity:.3,depthWrite:false}));scene.add(dust);lamp=new THREE.PointLight(0xffc977,0,16,1.6);scene.add(lamp);
+ T.wall=wallTex();T.floor=floorTex();T.cross=crossTex();T.red=redTex();
+ const fl=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({map:T.floor}));fl.rotation.x=-Math.PI/2;fl.position.set(CX,0,CX);scene.add(fl);
+ const gd=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshLambertMaterial({color:0x1a1610}));gd.rotation.x=-Math.PI/2;gd.position.set(CX,-.4,CX);scene.add(gd);
+ sun=new THREE.Mesh(new THREE.CircleGeometry(15,40),new THREE.MeshBasicMaterial({color:0xffe2a8,fog:false}));sun.rotation.y=Math.PI;sun.position.set(CX+(EX*CS-CX),-30,EZ*CS+190);scene.add(sun);
+ build();introCam(0);addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)})}
+function build(){if(grp)scene.remove(grp);layout();grp=new THREE.Group();scene.add(grp);
+ const cells=[];for(let z=0;z<N;z++)for(let x=0;x<N;x++)if(G[z][x]&&D.some(([a,b])=>G[z+b]&&G[z+b][x+a]===0))cells.push([x,z]);
+ const walls=new THREE.InstancedMesh(new THREE.BoxGeometry(CS,WH,CS),new THREE.MeshLambertMaterial({map:T.wall}),cells.length),d=new THREE.Object3D();
+ cells.forEach(([x,z],i)=>{d.position.set(x*CS,WH/2,z*CS);d.updateMatrix();walls.setMatrixAt(i,d.matrix)});grp.add(walls);
+ ceil=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({color:0x1c1610}));ceil.rotation.x=Math.PI/2;ceil.position.set(CX,WH,CX);grp.add(ceil);
+ const xg=new THREE.PlaneGeometry(2.2,2.2),xm=new THREE.MeshBasicMaterial({map:T.cross,transparent:true,depthWrite:false,opacity:.9}),
+ hg=new THREE.PlaneGeometry(4.2,4.2),hf=new THREE.PlaneGeometry(CS*1.5,CS*1.5),hm=new THREE.MeshBasicMaterial({map:T.red,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+ dead.forEach(({x,z,o})=>{const m=new THREE.Mesh(xg,xm),h=new THREE.Mesh(hg,hm),f=new THREE.Mesh(hf,hm);
+  m.position.set(x*CS-o[0]*(CS/2-.03),1.9,z*CS-o[1]*(CS/2-.03));h.position.set(x*CS-o[0]*(CS/2-.05),1.9,z*CS-o[1]*(CS/2-.05));
+  m.rotation.y=h.rotation.y=Math.atan2(o[0],o[1]);f.rotation.x=-Math.PI/2;f.position.set(x*CS-o[0]*.7,.08,z*CS-o[1]*.7);grp.add(m,h,f)});
+ const pg=new THREE.PlaneGeometry(2,1.25);
+ st.forEach(s=>{const m=new THREE.Mesh(pg,new THREE.MeshLambertMaterial({map:tex(plateTex(E[s.n],512,320))}));
+  m.position.set(s.x*CS+s.w[0]*(CS/2-.03),1.9,s.z*CS+s.w[1]*(CS/2-.03));m.rotation.y=Math.atan2(-s.w[0],-s.w[1]);grp.add(m)});
+ makeDoor();
+ pos={x:1,z:1};ang=tAng=G[1][2]===0?Math.PI/2:0;vx=vz=CS;
+ seen=Array.from({length:N},()=>Array(N).fill(0));reveal();near=-1;read.clear();trail=[1,1];locked=true;stepT=bumpT=9;dirty=1;count()}
+function introCam(t){const a=t*.00006,R=115,H=140;cam.position.set(CX+Math.sin(a)*R,H+Math.sin(t*.0002)*6,CX+Math.cos(a)*R);cam.lookAt(CX,0,CX);
+ wander.position.set(CX+Math.sin(t*.00023)*70,14,CX+Math.cos(t*.00031)*70);const p=dust.geometry.attributes.position;
+ for(let i=0;i<p.count;i++)p.setY(i,p.getY(i)+Math.sin(t*.0006+i)*.012);p.needsUpdate=true}
+function topView(){const half=N*CS/2+4,h=half/(Math.tan(cam.fov*Math.PI/360)*Math.min(1,cam.aspect));cam.position.set(CX,h,CX+.1);cam.lookAt(CX,0,CX)}
+
+/* ===== PLAY ===== */
+function reveal(){for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const X=pos.x+a,Z=pos.z+b;if(seen[Z]&&seen[Z][X]===0)seen[Z][X]=1}}
+function count(){const c=$('#cnt');c.textContent='Plaques '+read.size+' / '+E.length;c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
+function toast(h){const t=$('#toast');t.innerHTML=h;t.classList.remove('show');void t.offsetWidth;t.classList.add('show')}
+function move(dir){if(mode!=='play')return;const nx=pos.x+dir*Math.round(Math.sin(tAng)),nz=pos.z+dir*Math.round(Math.cos(tAng));
+ if(pos.x===EX&&pos.z===EZ&&nx===EX&&nz===EZ+1){tryDoor();return}
+ if(G[nz]&&G[nz][nx]===0){pos={x:nx,z:nz};trail.push(nx,nz);snd.step();stepT=0;stepSide*=-1;reveal();dirty=1;arrive()}else{snd.bump();bumpT=0}}
+function tryDoor(){bumpT=0;if(locked){snd.rattle();door.sh=.7;toast('The door is sealed.<br>Find all the plaques to unlock it. '+(E.length-read.size)+' still to find.')}else finish()}
+function unlock(){locked=false;door.lock.visible=false;setTimeout(()=>{snd.unlock();toast('Every plaque found.<br>The exit is unlocked. Find your way back to the door.')},700)}
+function turn(s){if(mode==='play'){tAng+=s*Math.PI/2}}
+function arrive(){if(pos.x===EX&&pos.z===EZ){near=-1;$('#prompt').hidden=true;return}
+ const s=st.find(o=>o.x===pos.x&&o.z===pos.z),p=$('#prompt');
+ if(s){if(near!==s.n&&!read.has(s.n))snd.find();near=s.n;p.textContent='Read the plaque · E';p.hidden=false}else{near=-1;p.hidden=true}}
+function sheetHTML(i){const e=E[i];let h=`<button class="x lk" id="cl">Close</button><div class="yr">${e.y}</div><h2>${e.t}</h2>`;
+ h+=e.i?`<img src="${e.i}" alt="" loading="lazy">`:'<canvas id="pl" width="720" height="300"></canvas>';
+ if(e.c)h+=`<p class="cap">${e.c}</p>`;
+ h+='<ul>'+e.p.map((s,j)=>{const k=s.indexOf('|'),a=k<0?'':s.slice(0,k),b=k<0?s:s.slice(k+1);
+  return a==='q'?`<blockquote>${b}</blockquote>`:`<li style="animation-delay:${.12+j*.06}s">${a?`<b>${a}</b>`:''}${b}</li>`}).join('')+'</ul>';
+ if(e.v)h+=`<button class="lk vid" data-v="${e.v}">Watch video</button>`;
+ if(e.l)h+='<div class="lk2">'+e.l.map(([a,u])=>`<a href="${u}" target="_blank" rel="noopener">${a} ↗</a>`).join('')+'</div>';return h}
+function show(i){mode='read';read.add(i);count();if(read.size===E.length&&locked)unlock();dirty=1;const s=$('#sheet');s.innerHTML=sheetHTML(i);s.scrollTop=0;s.classList.add('on');snd.page();
+ const pl=$('#pl');if(pl)pl.getContext('2d').drawImage(plateTex(E[i],720,300,1),0,0);
+ $('#cl').onclick=close;const v=$('.vid');if(v)v.onclick=()=>{const id=v.dataset.v;v.outerHTML=/\.(mp4|webm)$/i.test(id)?`<video src="${id}" controls preload="none"></video>`:`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen loading="lazy"></iframe>`}}
+function journal(){if(mode!=='play'&&mode!=='read'&&mode!=='done')return;const was=mode;if(was==='play')mode='read';
+ const s=$('#sheet'),r=[...read].sort((a,b)=>a-b);
+ s.innerHTML='<button class="x lk" id="cl">Close</button><div class="yr">JOURNAL</div><h2>Plaques you have read</h2>'+(r.length?r.map(i=>`<button class="j" data-i="${i}"><span>${E[i].y}</span>${E[i].t}</button>`).join(''):'<p>Nothing yet. Plaques are set in the walls along the route.</p>');
+ s.classList.add('on');$('#cl').onclick=close;s.querySelectorAll('.j').forEach(b=>b.onclick=()=>show(+b.dataset.i));s.dataset.from=was}
+function close(){const s=$('#sheet');s.classList.remove('on');snd.page();if(mode==='read')mode=endT>0?'done':'play'}
+function begin(){snd.init();const it=$('#intro');it.style.opacity=0;setTimeout(()=>it.hidden=true,1000);
+ const p0=cam.position.clone(),l0=new THREE.Vector3(CX,0,CX),p1=new THREE.Vector3(CS,1.7,CS),l1=new THREE.Vector3(CS+Math.sin(ang)*5,1.7,CS+Math.cos(ang)*5),t0=performance.now();mode='fly';
+ (function f(n){const k=Math.min((n-t0)/2600,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+  cam.position.lerpVectors(p0,p1,e);lookV.lerpVectors(l0,l1,e);cam.lookAt(lookV);amb.intensity=.5-.2*e;moon.intensity=.55*(1-e);wander.intensity=2.2*(1-e);dust.visible=e<.3;scene.fog.density=.0035+.0565*e;lamp.intensity=1.3*e;ceil.visible=e>.7;
+  if(k<1)requestAnimationFrame(f);else{mode='play';$('#hud').hidden=false;$('#hint').classList.add('show')}})(t0)}
+function finish(){mode='end';endT=.001;endFrom=cam.position.clone();lookFrom=new THREE.Vector3(vx+Math.sin(ang)*5,1.7,vz+Math.cos(ang)*5);$('#prompt').hidden=true;$('#hud').hidden=true;$('#sheet').classList.remove('on');snd.dawn()}
+function endStep(dt){endT+=dt;const cl=v=>Math.min(Math.max(v,0),1),sm=v=>v*v*(3-2*v),
+ walk=sm(cl(endT/3.5)),w=sm(cl((endT-2)/5)),s=sm(cl((endT-2)/10)),b=sm(cl(endT/5)),cu=Math.max(endT-2,0);
+ grp.scale.y=Math.max(1-w,.02);ceil.position.y=WH+cu*14;ceil.visible=cu<1.6;glow.visible=endT<1.2;
+ const c=NIGHT.clone().lerp(DAWN,s);scene.background.copy(c);scene.fog.color.copy(c);scene.fog.density=.06-.05*s;amb.intensity=.3+.95*s;lamp.intensity=1.3*(1-cl(endT/3));
+ sun.position.y=-30+s*58;cam.position.set(endFrom.x+(EX*CS-endFrom.x)*walk,1.7+s*4.5,endFrom.z+(EZ*CS+5-endFrom.z)*walk-s*3);lamp.position.copy(cam.position);
+ lookV.lerpVectors(lookFrom,new THREE.Vector3(EX*CS,5+s*10,EZ*CS+190),b);cam.lookAt(lookV);
+ if(endT>9&&!endShown){endShown=1;$('#end').style.opacity=1;$('#end').classList.add('on');mode='done'}}
+function reset(){endT=0;endShown=0;$('#end').style.opacity=0;$('#end').classList.remove('on');scene.background.copy(NIGHT);scene.fog.color.set(0x0b0a08);scene.fog.density=.06;amb.intensity=.35;lamp.intensity=1.3;sun.position.y=-30;
+ $('#prompt').hidden=true;$('#sheet').classList.remove('on')}
+function loop(t){requestAnimationFrame(loop);const dt=Math.min((t-last)/1000,.1);last=t;
+ if(door){if(!locked&&door.o<1)door.o=Math.min(1,door.o+dt/2.2);door.sh=Math.max(0,door.sh-dt);const a=(1-Math.pow(1-door.o,3))*1.75,j=Math.sin(t*.09)*.04*door.sh;door.gl.rotation.y=-a+j;door.gr.rotation.y=a-j}
+ if(mode==='play'||mode==='read'||mode==='map'){stepT+=dt;bumpT+=dt;const k=1-Math.exp(-dt*10);ang+=(tAng-ang)*k;vx+=(pos.x*CS-vx)*k;vz+=(pos.z*CS-vz)*k;
+  const dip=Math.sin(Math.PI*Math.min(stepT/.34,1)),bk=Math.min(bumpT/.28,1),bn=Math.sin(Math.PI*bk)*.2*(1-bk),y=1.7-dip*.14+Math.sin(t*.0017)*.012,fx=Math.sin(ang),fz=Math.cos(ang);
+  cam.position.set(vx+fx*bn,y,vz+fz*bn);cam.lookAt(vx+fx*5,1.7,vz+fz*5);cam.rotateZ(stepSide*dip*.014+(tAng-ang)*.03);
+  lamp.position.copy(cam.position);lamp.intensity=(1.3+Math.sin(t*.011)*.04+Math.sin(t*.0273)*.03)*(t%27000<350?.6+.4*Math.abs(Math.sin(t*.03)):1);
+  if(dirty||Math.abs(tAng-ang)>.01){drawMap($('#mm'),0,t);dirty=0}if(mode==='map')drawMap($('#fmc'),1,t)}
+ else if(mode==='intro')introCam(t);else if(mode==='end')endStep(dt);else if(mode==='done')endStep(0);
+ ren.render(scene,cam)}
+function drawMap(m,big,t){const s=m.clientWidth;if(!s)return;if(m.width!==s)m.width=m.height=s;const x=m.getContext('2d'),c=s/N;x.fillStyle='#0a0908';x.fillRect(0,0,s,s);
+ for(let z=0;z<N;z++)for(let q=0;q<N;q++)if(seen[z][q]){x.fillStyle=G[z][q]?'#4a4234':'#1d1a15';x.fillRect(q*c,z*c,c+.5,c+.5)}
+ if(big&&showTrail&&trail.length>3){x.strokeStyle='rgba(212,175,55,.4)';x.lineWidth=Math.max(c*.22,1.5);x.setLineDash([c*.5,c*.5]);x.beginPath();for(let i=0;i<trail.length;i+=2)x[i?'lineTo':'moveTo']((trail[i]+.5)*c,(trail[i+1]+.5)*c);x.stroke();x.setLineDash([])}
+ dead.forEach(d=>{if(!seen[d.z][d.x])return;x.fillStyle=x.strokeStyle='#9e1f1a';if(big){x.lineWidth=Math.max(c*.2,1.5);const a=c*.2;x.beginPath();x.moveTo(d.x*c+a,d.z*c+a);x.lineTo((d.x+1)*c-a,(d.z+1)*c-a);x.moveTo((d.x+1)*c-a,d.z*c+a);x.lineTo(d.x*c+a,(d.z+1)*c-a);x.stroke()}else x.fillRect(d.x*c+c*.2,d.z*c+c*.2,c*.6,c*.6)});
+ st.forEach(o=>{if(!seen[o.z][o.x])return;const r=read.has(o.n);x.fillStyle=r?'#7a6a3a':'#d4af37';
+  if(big){x.beginPath();x.arc((o.x+.5)*c,(o.z+.5)*c,c*.8,0,7);x.fill();if(r){x.fillStyle='#0a0908';x.font=`700 ${Math.max(c*.9,8)}px Cinzel,serif`;x.textAlign='center';x.textBaseline='middle';x.fillText(o.n+1,(o.x+.5)*c,(o.z+.5)*c+1)}}else x.fillRect(o.x*c-c*.2,o.z*c-c*.2,c*1.4,c*1.4)});
+ if(seen[EZ][EX]||!locked){x.globalAlpha=locked?1:(big?.6+.4*Math.sin(t*.005):1);x.fillStyle=locked?'#7a2a22':'#e8c766';x.fillRect(EX*c-c*.2,EZ*c-c*.2,c*1.4,c*1.4);x.globalAlpha=1;
+  if(big){x.fillStyle='#cfc7ad';x.font=`700 ${Math.max(c*.8,8)}px Cinzel,serif`;x.textAlign='center';x.textBaseline='bottom';x.fillText(locked?'EXIT (locked)':'EXIT',EX*c+c*.5,EZ*c-c*.3)}}
+ const px=(pos.x+.5)*c,pz=(pos.z+.5)*c,fx=Math.sin(ang),fz=Math.cos(ang);
+ if(big){x.strokeStyle='rgba(244,235,208,.5)';x.lineWidth=1.5;x.beginPath();x.arc(px,pz,c*(1.8+.5*Math.sin(t*.005)),0,7);x.stroke()}
+ x.fillStyle='#f4ebd0';x.beginPath();x.moveTo(px+fx*c*2,pz+fz*c*2);x.lineTo(px-fx*c-fz*c,pz-fz*c+fx*c);x.lineTo(px-fx*c+fz*c,pz-fz*c-fx*c);x.fill()}
+function openMap(){if(mode!=='play')return;mode='map';$('#fm').hidden=false}
+function closeMap(){$('#fm').hidden=true;if(mode==='map')mode='play';dirty=1}
+
+/* ===== INPUT ===== */
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();
+ if(k==='escape'&&mode==='read'){close();return}if(k==='escape'&&mode==='map'){closeMap();return}
+ if(k==='e'||k==='enter'){if(mode==='read')close();else if(mode==='play'&&near>=0)show(near);return}
+ if(k==='j'){journal();return}if(k==='m'){mode==='map'?closeMap():openMap();return}
+ if(mode!=='play')return;if(k.startsWith('arrow'))e.preventDefault();
+ ({w:()=>move(1),arrowup:()=>move(1),s:()=>move(-1),arrowdown:()=>move(-1),a:()=>turn(1),arrowleft:()=>turn(1),d:()=>turn(-1),arrowright:()=>turn(-1)})[k]?.()});
+document.querySelectorAll('.pad button').forEach(b=>{const f=({f:()=>move(1),b:()=>move(-1),l:()=>turn(1),r:()=>turn(-1)})[b.dataset.k];let iv;
+ b.onpointerdown=e=>{e.preventDefault();f();if(b.dataset.k==='f'||b.dataset.k==='b')iv=setInterval(f,320)};['onpointerup','onpointerleave','onpointercancel'].forEach(n=>b[n]=()=>clearInterval(iv))});
+let tsx=0,tsy=0;const cc=$('#c');cc.addEventListener('touchstart',e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY},{passive:true});
+cc.addEventListener('touchend',e=>{const t=e.changedTouches[0],dx=t.clientX-tsx,dy=t.clientY-tsy;if(Math.max(Math.abs(dx),Math.abs(dy))<45)return;if(Math.abs(dx)>Math.abs(dy))turn(dx>0?-1:1);else move(dy<0?1:-1)},{passive:true});
+addEventListener('pointerdown',()=>snd.init(),{once:true});addEventListener('keydown',()=>snd.init(),{once:true});
+$('#mmw').onclick=openMap;$('#bm').onclick=openMap;$('#fmx').onclick=closeMap;
+$('#fmtrail').onclick=()=>{showTrail=!showTrail;$('#fmtrail').textContent='Trail: '+(showTrail?'On':'Off')};
+$('#fmc').onclick=e=>{const r=e.target.getBoundingClientRect(),cx=Math.floor((e.clientX-r.left)/r.width*N),cz=Math.floor((e.clientY-r.top)/r.height*N),o=st.find(o=>read.has(o.n)&&Math.abs(o.x-cx)<=1&&Math.abs(o.z-cz)<=1);if(o){closeMap();show(o.n)}};
+$('#go').onclick=begin;$('#prompt').onclick=()=>near>=0&&show(near);$('#bj').onclick=journal;
+$('#bs').onclick=()=>{$('#bs').textContent='Sound: '+(snd.toggle()?'Off':'On')};
+$('#br').onclick=()=>{if(mode==='play'){pos={x:1,z:1};ang=tAng=G[1][2]===0?Math.PI/2:0;vx=vz=CS;near=-1;trail=[1,1];$('#prompt').hidden=true;dirty=1}};
+$('#ej').onclick=journal;
+$('#ea').onclick=()=>{reset();build();ceil.visible=true;grp.scale.y=1;mode='play';$('#hud').hidden=false};
+Promise.race([document.fonts.load('700 40px Cinzel'),new Promise(r=>setTimeout(r,1500))]).then(()=>{initScene();requestAnimationFrame(loop)},()=>{initScene();requestAnimationFrame(loop)});
+</script></body></html>
