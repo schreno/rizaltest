@@ -25,7 +25,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .tr{position:absolute;top:1rem;right:1rem;display:flex;gap:.6rem}
 .lk,.tr button{background:#0f1218b3;border:1px solid #6b5a2a;padding:.4rem .9rem;border-radius:2px;color:var(--gold);font-size:1rem}
 #prompt{position:absolute;left:50%;bottom:10.5rem;transform:translateX(-50%);padding:.55rem 1.3rem;background:#14120ee6;border:1px solid var(--gold);color:var(--gold);font-family:Cinzel,serif;letter-spacing:1px}
-@media(hover:hover) and (pointer:fine){#prompt{bottom:2.2rem}.pad{display:none!important}}
+@media(hover:hover) and (pointer:fine){#prompt{bottom:3.6rem}.pad{display:none!important}}
 .pad{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem}
 .pad div{display:flex;gap:.4rem}
 .pad button{width:3.6rem;height:3.6rem;font-size:1.5rem;background:#0f141cd9;border:1px solid #6b5a2a;color:var(--gold);border-radius:3px;touch-action:manipulation}
@@ -76,77 +76,164 @@ button{font:inherit;color:inherit;cursor:pointer}
 .fmt{display:flex;gap:.6rem}.fmt button{background:none;border:1px solid #6b5a2a;padding:.4rem .9rem;color:var(--gold)}
 .fml{margin:0;font-size:.95rem;color:#a8987a;text-align:center;max-width:60ch;padding:0 1rem}
 @media(max-width:700px){.tr{gap:.3rem}.tr button{padding:.3rem .55rem;font-size:.9rem}#end{max-height:62vh;overflow:auto;padding-top:1.2rem}#end p{font-size:1rem}}
+#cmp{position:absolute;top:1rem;left:50%;transform:translateX(-50%);width:200px;height:28px;pointer-events:none}
+#tl{position:absolute;left:50%;bottom:.8rem;transform:translateX(-50%);width:min(74vw,780px);height:1.4rem;display:flex;align-items:center;justify-content:space-between}
+#tl::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:#4a3d1c}
+.tk{position:relative;width:.7rem;height:.7rem;padding:0;border:1px solid #6b5a2a;border-radius:50%;background:#0d0f12;transition:background .3s,transform .15s}
+.tk.r{background:var(--gold);border-color:var(--gold)}.tk:hover{transform:scale(1.5)}
+@media(max-width:700px){#tl{top:.25rem;bottom:auto;width:calc(100% - 2rem);height:.6rem}.tk{width:.45rem;height:.45rem}}
+.vis{margin:1.4rem 0 0;padding-top:1rem;border-top:1px solid #2c2618}
+.vl{margin:0 0 .6rem;font:700 .82rem Cinzel,serif;letter-spacing:1px;color:var(--gold)}
+#sheet .vb img{aspect-ratio:auto;height:auto;max-height:340px;object-fit:contain;background:#0b0907}
+.ctx{margin:.4rem 0 .5rem;line-height:1.55;font-size:1.05rem;color:#d9d0b4}
+.src{display:inline-block;margin:0 0 1rem;font-size:.95rem;color:var(--gold)}
+.ch{margin:1.3rem 0 .2rem;font:700 .78rem Cinzel,serif;letter-spacing:1px;color:#8d8369}
+.prog{height:3px;background:#2c2618;margin:0 0 .8rem}.prog i{display:block;height:100%;background:var(--gold);transition:width .4s}
+.j{display:flex;align-items:center;gap:.8rem}
+.j.u{opacity:.4;cursor:default}
+#sheet .j img{width:3.4rem;height:3.4rem;aspect-ratio:1;object-fit:cover;border:1px solid #3a3222;margin:0;flex:none}
+.tx{flex:1}.tx span{display:block;margin:0 0 .1rem}
+.set label{display:block;margin:0 0 1.1rem;font:700 .85rem Cinzel,serif;letter-spacing:1px;color:var(--gold)}
+.set input{display:block;width:100%;margin-top:.5rem;accent-color:var(--gold)}
+.mb{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0 1.4rem}
+#end .stats{font-size:.95rem;color:#a8987a;margin:.2rem 0 1rem}
+#bars i{position:absolute;left:0;right:0;height:0;background:#000;z-index:24;transition:height 3.5s ease;pointer-events:none}
+#bars i:first-child{top:0}#bars i:last-child{bottom:0}#bars.on i{height:7vh}
+#flash{position:absolute;inset:0;z-index:23;background:#f6dfae;opacity:0;pointer-events:none}
+#end.on>*{animation:fu 1.6s both}#end.on>:nth-child(2){animation-delay:.9s}#end.on>:nth-child(3){animation-delay:1.8s}#end.on>:nth-child(4){animation-delay:2.7s}#end.on>:nth-child(n+5){animation-delay:3.4s}
 @media(prefers-reduced-motion:reduce){*{transition-duration:.01s!important}}
 </style></head><body>
 <div id="c"></div>
 <div id="intro">
 <header><h1>Rizal Historical Maze</h1><p>Walk the timeline of Dr. José Rizal’s life, from 1820 to 1896</p></header>
-<footer><p>Find every plaque set into the walls, in the order events happened, to unlock the exit. A red cross at the end of a corridor means it leads nowhere. Move with W A S D or the arrow keys (on a phone: the arrow buttons or swipe), press E at a plaque to read it, M for the full map.</p>
+<footer><p>Find every plaque set into the walls, in the order events happened, to unlock the exit. A red cross at the end of a corridor means it leads nowhere. Move with W A S D or the arrow keys (on a phone: the arrow buttons or swipe), press E at a plaque to read it, M for the full map, Esc for the menu.</p>
 <button id="go" class="btn">Begin the Journey</button></footer></div>
 <div id="hud" hidden>
 <div id="mmw" role="button" title="Open full map"><canvas id="mm"></canvas></div><div id="cnt"></div>
-<div class="tr"><button id="bm">Map</button><button id="bj">Journal</button><button id="bs">Sound: On</button><button id="br">Restart</button></div>
+<canvas id="cmp" width="400" height="56"></canvas><div id="tl"></div>
+<div class="tr"><button id="bm">Map</button><button id="bj">Journal</button><button id="bu">Menu</button></div>
 <button id="prompt" hidden></button>
 <div class="pad"><button data-k="f" aria-label="Forward">↑</button><div><button data-k="l" aria-label="Turn left">←</button><button data-k="b" aria-label="Back">↓</button><button data-k="r" aria-label="Turn right">→</button></div></div>
 </div>
-<div id="hint"><h2>Find the plaques to unlock the exit</h2><p>Red crosses mark dead ends.</p></div><div id="toast"></div>
+<div id="hint"><h2>Find the plaques to unlock the exit</h2><p>Red crosses mark dead ends.</p></div><div id="toast"></div><div id="bars"><i></i><i></i></div><div id="flash"></div>
 <div id="fm" hidden><div class="fmb"><canvas id="fmc"></canvas><div class="fmt"><button id="fmtrail">Trail: On</button><button id="fmx">Close</button></div>
 <p class="fml">Gold circles are plaques; dim ones are read, and clicking one reopens it. Red crosses are dead ends. The marker on the bottom edge is the exit.</p></div></div>
 <aside id="sheet"></aside>
 <div id="end"><h2>30 December 1896</h2>
 <p>Rizal’s execution at Bagumbayan, now known as Rizal Park in Manila. He was only 35 years old.</p>
 <p>The day before, he told his sister Trinidad about his last poem, hidden inside a small alcohol stove: “Mi Último Adiós” (“My Last Farewell”), in which he expressed his love for the Philippines and his willingness to sacrifice his life for his country.</p>
-<button id="ej" class="btn">Read the journal</button><button id="ea" class="btn">Walk again</button></div>
+<p id="es" class="stats"></p><button id="ej" class="btn">Read the journal</button><button id="ea" class="btn">Walk again</button></div>
 <script>
 /* ===== CONTENT (from RIZAL_MAZE.pdf) =====
    p: 'Lead|text' (or plain text). Lead 'q' = quotation.
-   MEDIA: i = image (URL or file next to this html), c = caption,
-          v = YouTube ID or .mp4/.webm path, l = [[label,url]]  */
+   Pictures, videos and links for each plaque live in the MEDIA table below. */
 const E=[
 {y:'1820',t:'Liberalism in Spain',p:['The French Revolution introduced the idea of freedom and the rights of a citizen in their own country, liberalism, and the United States for democracy.','The liberal ideas spread all over Spain, which later influenced the reformist ideas of the Filipinos greatly.']},
-{y:'1860–69',t:'Comité de Reformadores',p:['Who|A group of Filipino reformists who wanted changes in the Spanish government, specifically in its treatment of Filipinos.','Why|The liberal ideas of 1820 inspired them: they also deserved freedom, equal treatment, fair laws, and representation in the Spanish Cortes.','Hope|Carlos Maria Dela Torre was appointed governor general and introduced a more liberal administration, which gave Filipinos more hope.','Next|These demands helped prepare the way for the Propaganda Movement, which Rizal later joined.'],l:[['Propaganda Movement','https://en.wikipedia.org/wiki/Propaganda_Movement']]},
-{y:'1872',t:'Izquierdo and the Cavite Mutiny',p:['Rafael de Izquierdo|Dela Torre was replaced by Izquierdo, who was stricter in governing the Filipino people. He wanted to maintain the authority and control of the Spaniards; the liberal space Filipinos had experienced was restricted and limited.','Cavite Mutiny|A mutiny by native Filipino soldiers and laborers of the Cavite arsenal, who were dissatisfied with the abolition of their privileges.'],l:[['Cavite mutiny','https://en.wikipedia.org/wiki/Cavite_mutiny']]},
-{y:'1872',t:'Gomburza and a New Direction',p:['Gomburza|Their execution led to the beginning of Filipino nationalism.','Comité de Propaganda|The Comité de Reformadores changed into the Comité de Propaganda, a proto-nationalist group that included Paciano Mercado, Rizal’s older brother.','Ateneo|Rizal decided to study at Ateneo Municipal de Manila to maximize opportunities.','Rizal|He changed his surname to Rizal so he could embrace his patria grande.'],l:[['Gomburza','https://en.wikipedia.org/wiki/Gomburza']]},
+{y:'1860–69',t:'Comité de Reformadores',p:['Who|A group of Filipino reformists who wanted changes in the Spanish government, specifically in its treatment of Filipinos.','Why|The liberal ideas of 1820 inspired them: they also deserved freedom, equal treatment, fair laws, and representation in the Spanish Cortes.','Hope|Carlos Maria Dela Torre was appointed governor general and introduced a more liberal administration, which gave Filipinos more hope.','Next|These demands helped prepare the way for the Propaganda Movement, which Rizal later joined.']},
+{y:'1872',t:'Izquierdo and the Cavite Mutiny',p:['Rafael de Izquierdo|Dela Torre was replaced by Izquierdo, who was stricter in governing the Filipino people. He wanted to maintain the authority and control of the Spaniards; the liberal space Filipinos had experienced was restricted and limited.','Cavite Mutiny|A mutiny by native Filipino soldiers and laborers of the Cavite arsenal, who were dissatisfied with the abolition of their privileges.']},
+{y:'1872',t:'Gomburza and a New Direction',p:['Gomburza|Their execution led to the beginning of Filipino nationalism.','Comité de Propaganda|The Comité de Reformadores changed into the Comité de Propaganda, a proto-nationalist group that included Paciano Mercado, Rizal’s older brother.','Ateneo|Rizal decided to study at Ateneo Municipal de Manila to maximize opportunities.','Rizal|He changed his surname to Rizal so he could embrace his patria grande.']},
 {y:'1882',t:'Sent Abroad',p:['Rizal was sent abroad for a special mission: collecting the nation-building template and placing the Philippines on the map of the sovereign world.','El Amor Patrio|He wrote this essay in 1882.']},
-{y:'1888–89',t:'Why London?',p:['May 1888 – March 1889|','To improve his knowledge of the English language.','To study and annotate Morga’s Sucesos de las Islas Filipinas, a rare copy available only in the British Museum.','To immerse deeply in Filipiniana studies.'],l:[['Sucesos de las Islas Filipinas','https://en.wikipedia.org/wiki/Sucesos_de_las_Islas_Filipinas']]},
+{y:'1888–89',t:'Why London?',p:['May 1888 – March 1889|','To improve his knowledge of the English language.','To study and annotate Morga’s Sucesos de las Islas Filipinas, a rare copy available only in the British Museum.','To immerse deeply in Filipiniana studies.']},
 {y:'1889',t:'Writings from London',p:['La Visión del Fray Rodríguez|A satire: a spirited dialogue between St. Augustine and Fr. Rodriguez. God’s message informs the friar of his stupidity and penance on earth: he shall continue to write imbecilities so that all men may laugh at him.','Why|Fr. Rodriguez had attacked the Noli in a pamphlet, Cuestiones de Sumo Interes.','Trübner’s Record|Rizal contributed to this Asian studies journal: “Specimens of Tagal Folklore” and “Two Eastern Fables” (June 1889).','Recognition|The Dutch Dr. H. Kern mentioned him in a paper presented at the 1889 International Congress of Orientalists.']},
-{y:'1889',t:'Asociación Hispano-Filipina',p:['Established in Madrid to promote reforms and improve the welfare of the Philippines.','Political|M.H. del Pilar','Literary|Mariano Ponce','Sports|Arejola']},
+{y:'1889',t:'Asociación Hispano-Filipina',p:['Established in Madrid in 1889. Its objective: targeted reforms, working for the welfare of the Philippines.','Divided into three sections:','Political|M.H. del Pilar','Literary|Mariano Ponce','Sports|Arejola']},
 {y:'1889',t:'The Paris Clusters',p:['Samahang Kidlat|A temporary social club that brought kababayans together in Paris during the Exposition and lessened the burden of the high cost of living.','Indios Bravos|Formed from Samahang Kidlat, inspired by the Buffalo Bill Exhibition, where American Indians wore war paints and feathers and rode horses proudly like centaurs. Like Filipinos, they were called indios, yet looked tall, dignified, proud and powerfully built.','Rizal enjoined Filipinos to be proud of the name “indio” and to yield the power to change the perception of the term. They pledged to work toward physical prowess, intellectual perfection, and moral seriousness.']},
-{y:'1889',t:'Redemption and Science',p:['Sociedad R.D.L.M.|Redención de los Malayos. Its ultimate objective was the redemption of the Malays, of whom Rizal considered the Filipinos one. It sought to disseminate ideas of scientific, artistic, and cultural value.','Asociación Internacional de Filipinistas|Founded in Paris, 1889, to study the Philippines from the scientific and historical point of view. Its members were scientists from different fields, establishing the scientific bases of the existence of the Philippines as a distinct country and nation. It planned a congress to present recent studies.','In a 1889 letter to Ferdinand Blumentritt, Rizal gave an outline for the Congress, showing how deeply he wanted the Philippines to be known to the world.']},
-{y:'15 Feb 1889',t:'La Solidaridad',p:['The first issue was published on February 15, 1889. It became the official organ of the Comité de Propaganda.','Goals|Fight all forms of reaction. Prevent retrogression. Support liberal ideas and progress. Promote democracy in the Philippines and throughout the world.','It promoted democracy and the right of nations to self-determination.'],l:[['La Solidaridad','https://en.wikipedia.org/wiki/La_Solidaridad']]},
+{y:'1889',t:'Redemption and Science',p:['Sociedad R.D.L.M.|Redención de los Malayos. Its ultimate objective was the redemption of the Malays, of whom Rizal considered the Filipinos one. It sought to disseminate ideas of scientific, artistic, and cultural value.','Asociación Internacional de Filipinistas|Founded in Paris, 1889, to study the Philippines from the scientific and historical point of view. Its members were scientists from different fields, establishing the scientific bases of the existence of the Philippines as a distinct country and nation. It aimed to bring together scholars and scientists interested in the country, and planned a congress to present recent studies.','Rizal prepared an outline for the planned congress and sent it to Ferdinand Blumentritt in a 1889 letter, showing how deeply he wanted the Philippines to be known to the world.']},
+{y:'15 Feb 1889',t:'La Solidaridad',p:['The first issue was published on February 15, 1889. It became the official organ of the Comité de Propaganda.','Goals|Fight all forms of reaction. Prevent retrogression. Support liberal ideas and progress. Promote democracy in the Philippines and throughout the world.','It promoted democracy and the right of nations to self-determination.']},
 {y:'1889',t:'Essays in La Solidaridad',p:['Sobre la Indolencia de los Filipinos|Examined the alleged laziness of Filipinos and the historical conditions that contributed to it.','Filipinas dentro de cien años|Discussed the possible future of the Philippines under Spanish colonial rule.']},
 {y:'1890',t:'The Shift',p:['Toward the end of 1890, a confluence of developments shifted not just the editorship but also the publicized aims of La Solidaridad.','Rizal’s nostalgia|He became more mindful of visions of his death, which, unnegotiably, should happen in his home country.','Rizal’s focus|He grew convinced that everything to be written in the Sol had already been written, and focused on finishing the two legs of his magnum opus.','Del Pilar|He felt ideas aligned with masonry should be reflected more in the Sol, so that Filipino lodges might be recognized by the Gran Oriente Español.']},
 {y:'1890',t:'Under Del Pilar',p:['With less involvement from Rizal, the aims under Marcelo H. del Pilar became:','Removal of the friars and secularization of the parishes','Active participation in the affairs of the government','Freedom of speech, affairs, and assembly','Equality before the law','Assimilation of the Philippines to Madre España','Representation in the Spanish Cortes','q|“Now, I tell you. I have lost my hope in Spain. For that reason, I shall not write one more word in La Solidaridad. It seems to me it is in vain… the real battleground is in the Philippines—and I shall now go home.”']},
 {y:'1891',t:'Hong Kong',p:['Family reunion|Rizal reunited with his family after being separated from them.','Borneo Colonization Project|He planned to relocate landless Filipino families to North Borneo and establish a new community called “New Calamba,” but the plan failed due to logistical problems.','Writings for Filipinos|Essays defending the rights of Filipinos and exposing the injustices experienced by the people of Calamba.','Criticism and reform|He praised the humane British prison system and criticized Manila’s frequent fires.','Last letters|Letters intended to be opened only after his death.']},
 {y:'1891',t:'Writings of 1891',p:['Ang Mga Karapatan ng Tao|A translation of The Rights of Man, from the 1789 French Revolution.','A la Nación Española|An appeal regarding the unjust situation and oppression in Calamba.','Sa Mga Kababayan|Written to explain the Calamba situation to his countrymen.','Una Visita a la Victoria Gaol|An essay praising the humane British prison system.','La Mano Roja|A critique of the frequent and suspicious fires in Manila.','Last Letters|Final letters intended to be opened only after his death.']},
 {y:'1891–92',t:'The Hong Kong Years',p:['Reunited with his family.','Practiced medicine to earn money and raise funds for the nationalist movement.','Developed the Borneo Colonization Project, which aimed to transfer landless Filipino families to British North Borneo and establish “New Calamba.”','Successfully negotiated with British authorities, but the project did not happen because of logistical difficulties.']},
-{y:'3 Jul 1892',t:'La Liga Filipina',p:['Rizal founded it on July 3, 1892, at Ilaya Street, Tondo, Manila. He personally wrote its constitution and set five major objectives:','National Unity|Unite the entire archipelago into one strong and united community.','Mutual Protection|Help and protect one another in times of need.','Defense Against Injustice|Protect members against violence and injustice.','Education and Economy|Encourage education, agriculture, industry, and commerce.','Application of Reforms|Study and apply reforms that would benefit the country.'],l:[['La Liga Filipina','https://en.wikipedia.org/wiki/La_Liga_Filipina']]},
+{y:'3 Jul 1892',t:'La Liga Filipina',p:['Rizal founded it on July 3, 1892, at Ilaya Street, Tondo, Manila. He personally wrote its constitution and set five major objectives:','National Unity|Unite the entire archipelago into one strong and united community.','Mutual Protection|Help and protect one another in times of need.','Defense Against Injustice|Protect members against violence and injustice.','Education and Economy|Encourage education, agriculture, industry, and commerce.','Application of Reforms|Study and apply reforms that would benefit the country.']},
 {y:'1892',t:'What the Liga Offered',p:['It also aimed to improve the lives of members and their families through:','Providing scholarships for members and their children','Supporting poor and oppressed people','Helping members who experienced financial losses','Providing capital for agriculture and industries','Introducing machines and developing industries','Establishing shops, stores, and businesses']},
-{y:'Jun–Jul 1896',t:'The Katipunan Calls',p:['June|The Katipunan sends an envoy to ask Rizal to support the revolt. Rizal tells them the country is not ready.','July 1|Rizal confers with Pio Valenzuela on the Katipunan’s plans for an armed uprising.','July 30|Rizal receives…','July 31|Rizal leaves Dapitan; his request to serve as a volunteer army doctor in Cuba is granted.'],l:[['Katipunan','https://en.wikipedia.org/wiki/Katipunan']]},
+{y:'Jun–Jul 1896',t:'The Katipunan Calls',p:['June|The Katipunan sends an envoy to ask Rizal to support the revolt. Rizal tells them the country is not ready.','July 1|Rizal confers with Pio Valenzuela on the Katipunan’s plans for an armed uprising.','July 30|Rizal receives…','July 31|Rizal leaves Dapitan; his request to serve as a volunteer army doctor in Cuba is granted.']},
 {y:'Aug–Oct 1896',t:'Revolution and Arrest',p:['August|The Katipunan is discovered on August 19; the revolution under Andres Bonifacio begins.','September 3|Boards the Isla de Panay, sailing to Spain, still expecting to go on to Cuba.','October 6|Detained in Barcelona: arrested, held in Montjuïc Castle, and put aboard the Colón, bound back to Manila.']},
-{y:'Nov–Dec 1896',t:'Fort Santiago',p:['November 3|Arrives in Manila as a prisoner and is held in Fort Santiago to await trial.','December 26|After a one-day court-martial, he is found guilty of rebellion, sedition, and forming illegal associations, and sentenced to death.','December 28|Governor-General Camilo de Polavieja confirms the sentence and sets the execution for the morning of December 30.'],l:[['Fort Santiago','https://en.wikipedia.org/wiki/Fort_Santiago']]},
-{y:'29–30 Dec 1896',t:'Mi Último Adiós',p:['December 29|Rizal says goodbye to his family and tells his sister Trinidad about his last poem, hidden inside a small alcohol stove: “Mi Último Adiós” (“My Last Farewell”), in which he expressed his love for the Philippines and his willingness to sacrifice his life for his country.','December 30|Rizal’s execution at Bagumbayan, now known as Rizal Park in Manila. He was only 35 years old.'],l:[['Mi Último Adiós','https://en.wikipedia.org/wiki/Mi_%C3%9Altimo_Adi%C3%B3s']]}
+{y:'Nov–Dec 1896',t:'Fort Santiago',p:['November 3|Arrives in Manila as a prisoner and is held in Fort Santiago to await trial.','December 26|After a one-day court-martial, he is found guilty of rebellion, sedition, and forming illegal associations, and sentenced to death.','December 28|Governor-General Camilo de Polavieja confirms the sentence and sets the execution for the morning of December 30.']},
+{y:'29–30 Dec 1896',t:'Mi Último Adiós',p:['December 29|Rizal says goodbye to his family and tells his sister Trinidad about his last poem, hidden inside a small alcohol stove: “Mi Último Adiós” (“My Last Farewell”), in which he expressed his love for the Philippines and his willingness to sacrifice his life for his country.','December 30|Rizal’s execution at Bagumbayan, now known as Rizal Park in Manila. He was only 35 years old.']}
 ];
+
+/* ===== CHAPTERS (first plaque number of each chapter, 0 = plaque 1) ===== */
+const CH=[[0,'Roots of reform','1820–1882'],[5,'Europe and the Propaganda','1888–1889'],[12,'The Shift','1890'],[14,'Hong Kong and La Liga','1891–1892'],[19,'The Final Year','1896']];
+
+/* ===== MEDIA TABLE (edit me) =====================================================================
+   One row per plaque, in the same order as the plaques above.
+   Columns:
+     #        plaque number (1 = first plaque)
+     year     only a reminder for you, not used by the game
+     wiki     Wikipedia article name(s), underscores or spaces. Several names separated by ;
+              The first article gives the context text, the first one with a picture gives the picture.
+              Pictures and text are fetched live from Wikipedia only when the plaque is opened.
+     image    OPTIONAL. Your own picture (full https:// URL, or a file next to this html). Leave '' for the Wikipedia picture.
+     caption  OPTIONAL. Your own caption under the picture.
+     video    OPTIONAL. YouTube ID (the part after v=) or a .mp4/.webm file. Loads only after "Watch video" is clicked.
+     links    More links. Each item is either a Wikipedia article name, or 'Label|https://any-site.com'.
+   A YouTube search link and a Wikimedia Commons search link are added to every plaque automatically.
+   ================================================================================================= */
+const MEDIA=[
+// #   year        wiki                                                    image  caption  video  links
+[  1, '1820',      'Trienio_Liberal',                                      '',    '',      '',    ['Spanish Constitution of 1812','French Revolution']],
+[  2, '1860–69',   'Carlos_María_de_la_Torre;Propaganda_Movement',         '',    '',      '',    ['Propaganda Movement','Carlos María de la Torre']],
+[  3, '1872',      'Cavite_mutiny;Rafael_de_Izquierdo',                    '',    '',      '',    ['Cavite mutiny','Rafael de Izquierdo']],
+[  4, '1872',      'Gomburza',                                             '',    '',      '',    ['Gomburza','Paciano Rizal','Ateneo de Manila University']],
+[  5, '1882',      'José_Rizal',                                           '',    '',      '',    ['José Rizal','Complutense University of Madrid']],
+[  6, '1888–89',   'British_Museum',                                       '',    '',      '',    ['Sucesos de las Islas Filipinas','Antonio de Morga','British Museum']],
+[  7, '1889',      'Noli_Me_Tángere_(novel)',                              '',    '',      '',    ['Noli Me Tángere (novel)','José Rizal']],
+[  8, '1889',      'Marcelo_H._del_Pilar;Mariano_Ponce',                   '',    '',      '',    ['Marcelo H. del Pilar','Mariano Ponce','Propaganda Movement']],
+[  9, '1889',      'Exposition_Universelle_(1889)',                        '',    '',      '',    ['Exposition Universelle (1889)',"Buffalo Bill's Wild West"]],
+[ 10, '1889',      'Ferdinand_Blumentritt',                                '',    '',      '',    ['Ferdinand Blumentritt']],
+[ 11, '15 Feb 1889','La_Solidaridad',                                      '',    '',      '',    ['La Solidaridad','Propaganda Movement']],
+[ 12, '1889',      'The_Philippines_a_Century_Hence;The_Indolence_of_the_Filipino','','','', ['The Philippines a Century Hence','The Indolence of the Filipino']],
+[ 13, '1890',      'El_filibusterismo',                                    '',    '',      '',    ['El filibusterismo','Noli Me Tángere (novel)']],
+[ 14, '1890',      'Cortes_Generales;Marcelo_H._del_Pilar',                '',    '',      '',    ['Marcelo H. del Pilar','Cortes Generales','La Solidaridad']],
+[ 15, '1891',      'History_of_Hong_Kong',                                 '',    '',      '',    ['History of Hong Kong','British North Borneo','Calamba, Laguna']],
+[ 16, '1891',      'Declaration_of_the_Rights_of_Man_and_of_the_Citizen',  '',    '',      '',    ['Declaration of the Rights of Man and of the Citizen','Calamba, Laguna']],
+[ 17, '1891–92',   'British_North_Borneo',                                 '',    '',      '',    ['British North Borneo','History of Hong Kong']],
+[ 18, '3 Jul 1892','La_Liga_Filipina',                                     '',    '',      '',    ['La Liga Filipina','Tondo, Manila']],
+[ 19, '1892',      'Tondo,_Manila',                                        '',    '',      '',    ['La Liga Filipina','Tondo, Manila','Propaganda Movement']],
+[ 20, 'Jun–Jul 1896','Katipunan;Pío_Valenzuela',                           '',    '',      '',    ['Katipunan','Pío Valenzuela','Dapitan']],
+[ 21, 'Aug–Oct 1896','Philippine_Revolution',                              '',    '',      '',    ['Philippine Revolution','Andrés Bonifacio','Cry of Pugad Lawin']],
+[ 22, 'Nov–Dec 1896','Fort_Santiago',                                      '',    '',      '',    ['Fort Santiago','Camilo García de Polavieja']],
+[ 23, '29–30 Dec 1896','Mi_último_adiós;Rizal_Park',                       '',    '',      '',    ['Mi último adiós','Rizal Park','José Rizal']]
+];
+
+/* ===== SETTINGS (saved in the browser) ===== */
+const cfg=Object.assign({music:1,fx:1,light:1,bob:1},(()=>{try{return JSON.parse(localStorage.getItem('rizalmaze')||'{}')}catch(e){return{}}})());
+const save=()=>{try{localStorage.setItem('rizalmaze',JSON.stringify(cfg))}catch(e){}};
 
 /* ===== SOUND: all synthesized, no loops of melody ===== */
 const snd={x:null,mute:0,
-init(){if(this.x)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const x=this.x=new A,o=this.o=x.createGain();o.connect(x.destination);
+init(){if(this.x)return;const A=window.AudioContext||window.webkitAudioContext;if(!A)return;const x=this.x=new A,o=this.o=x.createGain();o.connect(x.destination);const fx=this.fx=x.createGain(),fr=this.fr=x.createGain(),am=this.am=x.createGain();fx.connect(o);am.connect(o);
  const n=this.n=x.createBuffer(1,x.sampleRate*2,x.sampleRate),d=n.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
  const ir=x.createBuffer(2,x.sampleRate*2.5,x.sampleRate);for(let c=0;c<2;c++){const e=ir.getChannelData(c);for(let i=0;i<e.length;i++)e[i]=(Math.random()*2-1)*Math.pow(1-i/e.length,3)}
- const cv=this.rv=x.createConvolver();cv.buffer=ir;const rg=x.createGain();rg.gain.value=.6;cv.connect(rg);rg.connect(o);
+ const cv=this.rv=x.createConvolver();cv.buffer=ir;fr.connect(cv);const rg=x.createGain();rg.gain.value=.6;cv.connect(rg);rg.connect(o);
  const w=x.createBufferSource();w.buffer=n;w.loop=true;const f=x.createBiquadFilter();f.type='bandpass';f.frequency.value=380;f.Q.value=.7;
  const g=this.wg=x.createGain();g.gain.value=.05;const l=x.createOscillator(),lg=x.createGain();l.frequency.value=.06;lg.gain.value=140;l.connect(lg);lg.connect(f.frequency);l.start();
- w.connect(f);f.connect(g);g.connect(o);w.start();[55,55.7].forEach(q=>{const u=x.createOscillator(),a=x.createGain();u.frequency.value=q;a.gain.value=.016;u.connect(a);a.connect(o);u.start()});this.loop();this.music()},
+ w.connect(f);f.connect(g);g.connect(am);w.start();[55,55.7].forEach(q=>{const u=x.createOscillator(),a=x.createGain();u.frequency.value=q;a.gain.value=.016;u.connect(a);a.connect(am);u.start()});this.loop();this.music();this.vol()},
+vol(){if(!this.x)return;this.am.gain.value=cfg.music;this.mg.gain.value=cfg.music;this.fx.gain.value=cfg.fx;this.fr.gain.value=cfg.fx},
 N(f,q,d,g,t=0,ty='lowpass'){const x=this.x;if(!x)return;const s=x.createBufferSource();s.buffer=this.n;s.playbackRate.value=.8+Math.random()*.4;
  const fl=x.createBiquadFilter();fl.type=ty;fl.frequency.value=f;fl.Q.value=q;const a=x.createGain(),T=x.currentTime+t;
  a.gain.setValueAtTime(0,T);a.gain.linearRampToValueAtTime(g,T+.006);a.gain.exponentialRampToValueAtTime(.0001,T+d);
- s.connect(fl);fl.connect(a);a.connect(this.o);s.start(T,Math.random());s.stop(T+d+.05)},
+ s.connect(fl);fl.connect(a);a.connect(this.fx);s.start(T,Math.random());s.stop(T+d+.05)},
 T(f0,f1,d,g,t=0,rv=0){const x=this.x;if(!x)return;const s=x.createOscillator(),a=x.createGain(),T=x.currentTime+t;
  s.frequency.setValueAtTime(f0,T);s.frequency.exponentialRampToValueAtTime(f1,T+d);
  a.gain.setValueAtTime(0,T);a.gain.linearRampToValueAtTime(g,T+.01);a.gain.exponentialRampToValueAtTime(.0001,T+d);
- s.connect(a);a.connect(this.o);if(rv)a.connect(this.rv);s.start(T);s.stop(T+d+.05)},
-step(){this.N(380+Math.random()*260,.8,.09,.2);this.T(95,48,.1,.14)},
+ s.connect(a);a.connect(this.fx);if(rv)a.connect(this.fr);s.start(T);s.stop(T+d+.05)},
+sd:0,step(){const f=this.sd^=1;this.N(340+Math.random()*260+f*60,.8,.09,.17);this.T(f?100:88,46,.1,.12);if(Math.random()<.2)this.N(3200,1.2,.03,.025,.05,'highpass')},
+swell(){[98,196,293.66,392,587.33].forEach((f,i)=>setTimeout(()=>this.pad(f,16,.012),i*800))},
 bump(){this.T(70,38,.16,.2);this.N(220,.5,.12,.1)},
+scuff(){this.N(600+Math.random()*200,.6,.08,.05);this.T(120,70,.07,.04)},
+ui(){this.N(1500+Math.random()*300,2.5,.03,.035,0,'bandpass');this.T(420,300,.05,.03)},
+fold(){[0,.09,.2,.28].forEach(t=>this.N(1100+Math.random()*700,1,.1,.045,t,'bandpass'));this.T(110,80,.2,.03)},
+hint(){this.T(660,658,1.8,.018,0,1);this.T(990,988,1.2,.008,.1,1)},
+creak(d,g,t=0){const x=this.x;if(!x)return;const T0=x.currentTime+t,o=x.createOscillator(),f=x.createBiquadFilter(),a=x.createGain(),n=24,c=new Float32Array(n);let b=90+Math.random()*30;
+ for(let i=0;i<n;i++){b+=(Math.random()-.4)*14;c[i]=Math.max(60,b)}
+ o.type='sawtooth';o.frequency.setValueCurveAtTime(c,T0,d);f.type='bandpass';f.frequency.value=420+Math.random()*200;f.Q.value=5;
+ a.gain.setValueAtTime(0,T0);a.gain.linearRampToValueAtTime(g,T0+d*.2);a.gain.linearRampToValueAtTime(g*.6,T0+d*.7);a.gain.linearRampToValueAtTime(0,T0+d);
+ o.connect(f);f.connect(a);a.connect(this.fx);o.start(T0);o.stop(T0+d+.05)},
+begin(){const x=this.x;if(!x)return;this.N(2400,3,.05,.09,0,'bandpass');this.T(160,70,.1,.1);this.creak(2,.05,.15);this.N(500,1,1.8,.05,.2);
+ this.T(80,40,.35,.2,2.1);this.N(180,.5,.3,.12,2.1);setTimeout(()=>this.bell(110,.8),2300);
+ this.wg.gain.setTargetAtTime(.09,x.currentTime,.5);setTimeout(()=>this.wg.gain.setTargetAtTime(.05,x.currentTime,2),2400)},
 page(){for(let i=0;i<6;i++)this.N(2200+Math.random()*1800,1.2,.05,.05,i*.045+Math.random()*.02,'bandpass')},
 find(){this.T(988,986,2.4,.03,0,1);this.T(2730,2725,1.2,.008,0,1)},
 bell(f=165,v=1){[[.5,1],[1,.8],[1.19,.5],[1.56,.35],[2,.45],[2.51,.25],[3,.15]].forEach(([r,a])=>this.T(f*r,f*r*.998,5/Math.pow(r+.5,.4),.03*a*v,0,1))},
@@ -158,16 +245,17 @@ music(){const x=this.x;this.mg=x.createGain();this.mg.connect(this.o);this.mg.co
  const mel=()=>{if(!this.mute&&mode!=='end'){const n=[392,440,523.25,587.33,698.46][Math.random()*5|0];this.T(n,n*.999,3.4,.016,0,1)}setTimeout(mel,2800+Math.random()*5500)};
  ch();setTimeout(mel,6000)},
 rattle(){[0,.07,.15,.24].forEach(t=>{this.N(2600+Math.random()*1500,2,.05,.07,t,'bandpass');this.T(180,120,.08,.08,t)});this.T(70,45,.2,.15)},
-unlock(){this.T(520,500,.12,.12);this.N(1500,3,.06,.1,.05,'bandpass');this.T(65,40,.5,.18,.5);this.N(500,1,1.6,.1,.9)},
+unlock(){this.T(520,500,.12,.12);this.N(1500,3,.06,.1,.05,'bandpass');this.T(65,40,.5,.18,.5);this.N(500,1,1.6,.1,.9);this.creak(1.8,.035,.9);setTimeout(()=>this.bell(130,.9),300)},
 drip(){this.T(2300+Math.random()*500,950,.07,.025,0,1)},
 loop(){setTimeout(()=>{if(mode==='play'&&!this.mute){if(Math.random()<.3)this.bell(150+Math.random()*30,.7);else this.drip()}this.loop()},12000+Math.random()*22000)},
-dawn(){if(!this.x)return;const g=this.wg.gain;g.setTargetAtTime(.012,this.x.currentTime,2.5);[0,3.8,7.6].forEach(t=>setTimeout(()=>this.bell(196,1.4),t*1000))},
+dawn(){if(!this.x)return;this.creak(2.6,.05,0);const g=this.wg.gain;g.setTargetAtTime(.012,this.x.currentTime,2.5);this.swell();[1,5.5,10].forEach(t=>setTimeout(()=>this.bell(196,1.4),t*1000));setTimeout(()=>this.bell(98,1.2),14000)},
 toggle(){this.mute^=1;if(this.o)this.o.gain.value=this.mute?0:1;return this.mute}};
 
 /* ===== MAZE ===== */
-const N=41,CS=4,WH=3.6,EX=N-2,EZ=N-1,D=[[0,1],[0,-1],[1,0],[-1,0]],$=s=>document.querySelector(s);
-let G,dead,st,seen,pos,ang,tAng,vx,vz,bob=0,mode='intro',read=new Set(),near=-1,dirty=1,endT=0,endShown=0,last=0,trail=[1,1],locked=true,stepT=9,bumpT=9,stepSide=1,showTrail=true,endFrom,lookFrom,moon,wander,dust,door;
-let scene,cam,ren,amb,lamp,grp,ceil,glow,sun,T={},lookV=new THREE.Vector3(),CX=(N-1)*CS/2;
+const N=35,CS=4,WH=3.6,EX=N-2,EZ=N-1,D=[[0,1],[0,-1],[1,0],[-1,0]],$=s=>document.querySelector(s);
+let G,dead,st,seen,pos,ang,tAng,vx,vz,bob=0,mode='intro',read=new Set(),near=-1,dirty=1,endT=0,endShown=0,last=0,trail=[1,1],locked=true,stepT=9,bumpT=9,stepSide=1,showTrail=true,endFrom,lookFrom,moon,wander,dust,door,steps=0,hints=0,elapsed=0,hintAt=-1e9,pend=null,dbgOn=0,hudT=0,cmpA=9;
+let torches=[],spiders=[],tLights=[],mote,motePos,moteVel,thr,thrPos,webs;
+let scene,cam,ren,amb,lamp,grp,ceil,roof,glow,sun,T={},lookV=new THREE.Vector3(),CX=(N-1)*CS/2;
 const NIGHT=new THREE.Color(0x0a0c10),DAWN=new THREE.Color(0xe0a56a);
 
 function gen(){const g=Array.from({length:N},()=>Array(N).fill(1)),s=[[1,1]];g[1][1]=0;
@@ -179,15 +267,17 @@ function route(){const prev=new Int16Array(N*N).fill(-2),q=[N+1];prev[N+1]=-1;
  const p=[];for(let c=EZ*N+EX;c!==-1;c=prev[c])p.push(c);return p.reverse()}
 function straight(x,z){const o=(a,b)=>G[z+b][x+a]===0,w=(a,b)=>G[z+b][x+a]===1;
  if(w(-1,0)&&w(1,0)&&o(0,-1)&&o(0,1))return[1,0];if(w(0,-1)&&w(0,1)&&o(-1,0)&&o(1,0))return[0,1];return 0}
-function layout(){let path;do{G=gen();path=route()}while(path.length<190);
+function layout(){let path,ok;
+ for(let att=0;att<80;att++){do{G=gen();path=route()}while(path.length<160);
+  st=[];let lastI=0;ok=true;const L=path.length,K=E.length;
+  for(let k=0;k<K&&ok;k++){const tg=Math.round((k+.5)*(L-6)/K)+3;let pick=null;
+   for(let o=0;o<=8&&!pick;o++)for(const s of[o,-o]){const i=tg+s;if(i<3||i>L-3||i<=lastI+5)continue;const c=path[i],x=c%N,z=c/N|0,ax=straight(x,z);
+    if(ax){const sg=Math.random()<.5?1:-1;pick={x,z,i,w:[ax[0]*sg,ax[1]*sg]};break}}
+   if(!pick){if(att<79){ok=false;break}const i=Math.max(tg,lastI+1),c=path[i],x=c%N,z=c/N|0;pick={x,z,i,w:D.find(([a,b])=>G[z+b][x+a]===1)}}
+   lastI=pick.i;pick.n=k;st.push(pick)}
+  if(ok)break}
  dead=[];for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++){if(G[z][x]||(x===1&&z===1)||(x===EX&&z===EZ))continue;
-  const op=D.filter(([a,b])=>G[z+b][x+a]===0);if(op.length===1)dead.push({x,z,o:op[0]})}
- st=[];let lastI=0;const L=path.length,K=E.length;
- for(let k=0;k<K;k++){const tg=Math.round((k+.5)*(L-6)/K)+3;let pick=null;
-  for(let o=0;o<=8&&!pick;o++)for(const s of[o,-o]){const i=tg+s;if(i<3||i>L-3||i<=lastI+5)continue;const c=path[i],x=c%N,z=c/N|0,ax=straight(x,z);
-   if(ax){const sg=Math.random()<.5?1:-1;pick={x,z,i,w:[ax[0]*sg,ax[1]*sg]};break}}
-  if(!pick){const i=Math.max(tg,lastI+1),c=path[i],x=c%N,z=c/N|0;pick={x,z,i,w:D.find(([a,b])=>G[z+b][x+a]===1)}}
-  lastI=pick.i;pick.n=k;st.push(pick)}}
+  const op=D.filter(([a,b])=>G[z+b][x+a]===0);if(op.length===1)dead.push({x,z,o:op[0]})}}
 
 /* ===== TEXTURES ===== */
 const cvs=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return[c,c.getContext('2d')]};
@@ -209,6 +299,9 @@ function plateTex(e,w,h,big){const[c,x]=cvs(w,h);x.fillStyle=big?'#1b1711':'#231
  x.fillStyle='#d9cfae';x.font=`italic ${big?34:30}px "IM Fell English",serif`;
  const ws=e.t.split(' ');let a='',b='';ws.forEach(s=>{if(!b&&x.measureText(a+' '+s).width<w-110)a+=' '+s;else b+=' '+s});
  x.fillText(a.trim(),w/2,h*.48+48);if(b)x.fillText(b.trim(),w/2,h*.48+86);return c}
+function roofTex(){const S=16,[c,x]=cvs(N*S,N*S);x.fillStyle='#0f0c08';x.fillRect(0,0,N*S,N*S);
+ for(let z=0;z<N;z++)for(let q=0;q<N;q++)if(G[z][q]){const v=Math.random()*14-7|0;x.fillStyle=`rgb(${74+v},${64+v},${50+v})`;x.fillRect(q*S+1,z*S+1,S-2,S-2);x.fillStyle='rgba(0,0,0,.28)';x.fillRect(q*S+S/2,z*S+1,1,S-2);x.fillRect(q*S+1,z*S+S/2,S-2,1)}
+ for(let i=0;i<5000;i++){x.fillStyle=`rgba(${Math.random()<.5?'0,0,0':'210,190,140'},${Math.random()*.08})`;x.fillRect(Math.random()*N*S,Math.random()*N*S,2,2)}return tex(c)}
 function redTex(){const[c,x]=cvs(128,128);const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(190,28,22,.6)');g.addColorStop(1,'rgba(190,28,22,0)');x.fillStyle=g;x.fillRect(0,0,128,128);return tex(c)}
 function doorTex(){const[c,x]=cvs(256,372);x.fillStyle='#120d08';x.fillRect(0,0,256,372);
  for(let i=0;i<6;i++){const v=Math.random()*14-7|0;x.fillStyle=`rgb(${74+v},${48+v},${28+v})`;x.fillRect(i*42+2,0,38,372)}
@@ -228,6 +321,120 @@ function makeDoor(){const zD=EZ*CS+CS/2-.25,L=CS/2,gm=new THREE.PlaneGeometry(L,
  grp.add(gl,gr,sn,lk,glow);door={o:0,sh:0,gl,gr,lock:lk}}
 function glowTex(){const[c,x]=cvs(64,256);const g=x.createLinearGradient(0,0,0,256);g.addColorStop(0,'#0f1319');g.addColorStop(1,'#4b3822');x.fillStyle=g;x.fillRect(0,0,64,256);return tex(c)}
 
+/* ===== ROOF, TORCHES, SPIDERS, DUST ===== */
+function mergeGeos(parts){let pos=[],nor=[],idx=[],off=0;
+ parts.forEach(g=>{const p=g.attributes.position,n=g.attributes.normal;for(let i=0;i<p.count;i++){pos.push(p.getX(i),p.getY(i),p.getZ(i));nor.push(n.getX(i),n.getY(i),n.getZ(i))}
+  if(g.index){for(let i=0;i<g.index.count;i++)idx.push(g.index.getX(i)+off)}else{for(let i=0;i<p.count;i++)idx.push(i+off)}off+=p.count});
+ const m=new THREE.BufferGeometry();m.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));m.setAttribute('normal',new THREE.Float32BufferAttribute(nor,3));m.setIndex(idx);return m}
+function seg(a,b,r1,r2,sides){const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b),d=B.clone().sub(A),len=d.length(),g=new THREE.CylinderGeometry(r2,r1,len,sides||5);
+ const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());
+ g.applyMatrix4(new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(.5),q,new THREE.Vector3(1,1,1)));return g}
+function spiderGeo(){const P=[];
+ const ab=new THREE.SphereGeometry(.1,8,6);ab.scale(1,.9,1.35);ab.translate(0,0,-.14);P.push(ab);
+ const ce=new THREE.SphereGeometry(.065,8,6);ce.scale(1,.8,1.1);ce.translate(0,0,.05);P.push(ce);
+ for(const sd of[-1,1])for(let i=0;i<4;i++){const z0=.09-i*.045,sp=(i-1.5)*.1;
+  const hip=[sd*.05,0,z0],knee=[sd*.24,.13,z0+sp*.8],foot=[sd*.36,-.15,z0+sp*1.8];
+  P.push(seg(hip,knee,.011,.008,4),seg(knee,foot,.008,.004,4))}
+ return mergeGeos(P)}
+function stoneRoofTex(){const[c,x]=cvs(512,512);x.fillStyle='#0d0a07';x.fillRect(0,0,512,512);const S=128;
+ for(let r=0;r<4;r++)for(let q=-1;q<5;q++){const X=q*S+(r%2)*S/2,Y=r*S,v=Math.random()*20-10|0;
+  x.fillStyle=`rgb(${50+v},${42+v},${32+v})`;x.fillRect(X+3,Y+3,S-6,S-6);
+  const g=x.createLinearGradient(X,Y,X,Y+S);g.addColorStop(0,'rgba(0,0,0,.4)');g.addColorStop(.5,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.32)');x.fillStyle=g;x.fillRect(X+3,Y+3,S-6,S-6)}
+ for(let i=0;i<26;i++){const px=Math.random()*512,py=Math.random()*512,rr=30+Math.random()*60,g=x.createRadialGradient(px,py,0,px,py,rr);
+  const damp=Math.random()<.4;g.addColorStop(0,damp?'rgba(35,55,28,.2)':'rgba(0,0,0,.3)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(px-rr,py-rr,rr*2,rr*2)}
+ x.strokeStyle='rgba(0,0,0,.65)';x.lineWidth=1.4;for(let i=0;i<14;i++){let px=Math.random()*512,py=Math.random()*512;x.beginPath();x.moveTo(px,py);for(let k=0;k<6;k++){px+=Math.random()*26-13;py+=Math.random()*26-4;x.lineTo(px,py)}x.stroke()}
+ for(let i=0;i<7000;i++){x.fillStyle=`rgba(${Math.random()<.55?'0,0,0':'200,180,130'},${Math.random()*.09})`;x.fillRect(Math.random()*512,Math.random()*512,2,2)}
+ return tex(c,N)}
+function woodTex(){const[c,x]=cvs(256,64);x.fillStyle='#2a1c11';x.fillRect(0,0,256,64);
+ for(let i=0;i<70;i++){x.strokeStyle=`rgba(${Math.random()<.5?'10,5,0':'95,62,32'},${.05+Math.random()*.15})`;x.lineWidth=1+Math.random()*2;const y=Math.random()*64;x.beginPath();x.moveTo(0,y);for(let u=0;u<=256;u+=32)x.lineTo(u,y+Math.random()*4-2);x.stroke()}
+ x.fillStyle='rgba(0,0,0,.4)';for(let i=0;i<3;i++)x.fillRect(Math.random()*256,0,2,64);return tex(c)}
+function webTex(){const[c,x]=cvs(128,128);x.translate(0,128);x.strokeStyle='rgba(255,255,250,1)';x.lineWidth=2.6;const R=122,n=6;
+ for(let i=0;i<=n;i++){const a=i/n*Math.PI/2;x.beginPath();x.moveTo(0,0);x.lineTo(Math.cos(a)*R,-Math.sin(a)*R);x.stroke()}
+ for(let k=1;k<=6;k++){const r=k*R/6.4;x.beginPath();for(let i=0;i<=n;i++){const a=i/n*Math.PI/2,px=Math.cos(a)*r,py=-Math.sin(a)*r;
+  if(i===0)x.moveTo(px,py);else{const am=(i-.5)/n*Math.PI/2,sg=r*.86;x.quadraticCurveTo(Math.cos(am)*sg,-Math.sin(am)*sg,px,py)}}x.stroke()}
+ return tex(c)}
+function flameTex(){const[c,x]=cvs(64,128);x.setTransform(1,0,0,2,0,0);const g=x.createRadialGradient(32,38,1,32,38,30);
+ g.addColorStop(0,'rgba(255,248,210,1)');g.addColorStop(.25,'rgba(255,196,85,.92)');g.addColorStop(.6,'rgba(255,100,20,.38)');g.addColorStop(1,'rgba(255,60,0,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return tex(c)}
+function softTex(a){const[c,x]=cvs(64,64);const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,`rgba(255,165,70,${a})`);g.addColorStop(1,'rgba(255,120,30,0)');x.fillStyle=g;x.fillRect(0,0,64,64);return tex(c)}
+function dustTex(){const[c,x]=cvs(32,32);const g=x.createRadialGradient(16,16,0,16,16,16);g.addColorStop(0,'rgba(255,235,200,1)');g.addColorStop(.4,'rgba(255,220,170,.5)');g.addColorStop(1,'rgba(255,200,140,0)');x.fillStyle=g;x.fillRect(0,0,32,32);return tex(c)}
+
+let SG,FX={};
+function initFx(){
+ SG=spiderGeo();
+ FX.flame=new THREE.SpriteMaterial({map:flameTex(),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true});
+ FX.halo=new THREE.SpriteMaterial({map:softTex(.55),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true});
+ FX.wood=new THREE.MeshLambertMaterial({map:woodTex()});FX.web=webTex();FX.stone=stoneRoofTex();
+ const MN=160;motePos=new Float32Array(MN*3);moteVel=new Float32Array(MN*3);
+ for(let i=0;i<MN;i++){motePos[i*3]=Math.random()*18-9;motePos[i*3+1]=Math.random()*3.5;motePos[i*3+2]=Math.random()*18-9;
+  moteVel[i*3]=(Math.random()-.5)*.12;moteVel[i*3+1]=(Math.random()-.5)*.05-.01;moteVel[i*3+2]=(Math.random()-.5)*.12}
+ const mg=new THREE.BufferGeometry();mg.setAttribute('position',new THREE.BufferAttribute(motePos,3));
+ mote=new THREE.Points(mg,new THREE.PointsMaterial({map:dustTex(),color:0xd8d2c4,size:.05,transparent:true,opacity:.22,depthWrite:false,blending:THREE.AdditiveBlending}));
+ mote.frustumCulled=false;mote.visible=false;scene.add(mote)}
+
+function buildRoof(){
+ ceil=new THREE.Group();ceil.position.set(0,WH,0);grp.add(ceil);
+ const sm=FX.stone;
+ const slab=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({map:sm}));slab.rotation.x=Math.PI/2;slab.position.set(CX,0,CX);ceil.add(slab);
+ // wooden crossbeams over straight corridors
+ const bx=[];for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++)if(G[z][x]&&(x+z)%2===1){const ax=straight(x,z);if(ax)bx.push([x,z,ax])}
+ const beams=new THREE.InstancedMesh(new THREE.BoxGeometry(CS+.04,.3,.34),FX.wood,bx.length),d=new THREE.Object3D();
+ bx.forEach(([x,z,ax],i)=>{d.position.set(x*CS,-.15,z*CS);d.rotation.set(0,ax[0]?0:Math.PI/2,0);d.scale.set(1,1,1);d.updateMatrix();beams.setMatrixAt(i,d.matrix)});ceil.add(beams);
+ // thin iron bands on beams' undersides
+ // cobwebs in wall/ceiling corners
+ const wl=[];for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++)if(G[z][x])for(const a of[-1,1])for(const b of[-1,1])if(G[z][x+a]===0&&G[z+b][x]===0&&Math.random()<.8)wl.push([x,z,a,b]);
+ const wg=new THREE.PlaneGeometry(2.4,2.4);wg.translate(1.2,1.2,0);wg.rotateX(Math.PI/2);
+ webs=new THREE.InstancedMesh(wg,new THREE.MeshBasicMaterial({map:FX.web,transparent:true,depthWrite:false,color:0xf2f0e6,side:THREE.DoubleSide}),wl.length);
+ wl.forEach(([x,z,a,b],i)=>{const k=.9+Math.random()*.6;d.position.set(x*CS+a*CS/2,-.06,z*CS+b*CS/2);d.rotation.set(0,a<0&&b<0?0:a>0&&b>0?Math.PI:a<0?Math.PI/2:-Math.PI/2,0);d.scale.set(k,1,k);d.updateMatrix();webs.setMatrixAt(i,d.matrix)});ceil.add(webs);
+ // spiders
+ const smat=new THREE.MeshLambertMaterial({color:0x0c0806,emissive:0x1d1109}),floors=[];
+ for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++)if(G[z][x])floors.push([x,z]);
+ spiders=[];const SN=40;thrPos=new Float32Array(SN*6);
+ for(let i=0;i<SN;i++){const[fx,fz]=floors[Math.random()*floors.length|0],m=new THREE.Mesh(SG,smat),k=1.3+Math.random()*1.3;m.scale.setScalar(k);
+  const o={m,x:fx*CS+(Math.random()-.5)*2.8,z:fz*CS+(Math.random()-.5)*2.8,L0:.7+Math.random()*1.0,amp:.15+Math.random()*.25,sp:.6+Math.random()*.9,ph:Math.random()*6.28,r:Math.random()*6.28,k};
+  spiders.push(o);ceil.add(m)}
+ const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(thrPos,3));
+ thr=new THREE.LineSegments(tg,new THREE.LineBasicMaterial({color:0xc9c6b4,transparent:true,opacity:.45}));thr.frustumCulled=false;ceil.add(thr);
+ // spiders resting in webs
+ for(let i=0;i<Math.min(16,wl.length);i++){const[x,z,a,b]=wl[Math.random()*wl.length|0],m=new THREE.Mesh(SG,smat);
+  m.position.set(x*CS+a*CS/2-a*.28,-.14,z*CS+b*CS/2-b*.28);m.rotation.set(Math.PI,Math.random()*6.28,0);m.scale.setScalar(.9+Math.random()*.6);ceil.add(m)}}
+
+function buildTorches(){
+ torches=[];const cand=[];
+ for(let z=1;z<N-1;z++)for(let x=1;x<N-1;x++)if(G[z][x]&&!(Math.abs(x-EX)<3&&z>N-5))for(const[a,b]of D)if(G[z+b][x+a]===0&&
+  !st.some(q=>q.x===x&&q.z===z&&q.w[0]===a&&q.w[1]===b)&&!dead.some(q=>q.x===x&&q.z===z&&q.o[0]===a&&q.o[1]===b))cand.push([x,z,a,b]);
+ for(let i=cand.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[cand[i],cand[j]]=[cand[j],cand[i]]}
+ const pick=[];cand.forEach(c=>{if(pick.every(q=>Math.abs(q[0]-c[0])+Math.abs(q[1]-c[1])>=4))pick.push(c)});
+ const tgeo=mergeGeos([seg([0,0,0],[0,.72,.26],.045,.032,6),seg([0,.62,.22],[0,.84,.31],.05,.1,8),new THREE.BoxGeometry(.22,.34,.05).translate(0,.12,0)]),
+  im=new THREE.InstancedMesh(tgeo,new THREE.MeshLambertMaterial({color:0x3a2a1a,emissive:0x140b05}),pick.length),d=new THREE.Object3D();
+ pick.forEach(([x,z,a,b],i)=>{const bx=x*CS+a*(CS/2-.03),bz=z*CS+b*(CS/2-.03);d.position.set(bx,1.65,bz);d.rotation.set(0,Math.atan2(-a,-b),0);d.scale.set(1,1,1);d.updateMatrix();im.setMatrixAt(i,d.matrix);
+  const fxp=bx-a*.31,fyp=1.65+.95,fzp=bz-b*.31,fl=new THREE.Sprite(FX.flame),ha=new THREE.Sprite(FX.halo);
+  fl.position.set(fxp,fyp,fzp);ha.position.set(fxp,fyp,fzp);fl.scale.set(.55,.95,1);ha.scale.set(2.6,2.6,1);grp.add(fl,ha);
+  torches.push({x:fxp,y:fyp,z:fzp,fl,ha,ph:Math.random()*100})});
+ grp.add(im)}
+
+function fx(t,dt){
+ // torch flame flicker
+ for(const q of torches){const n=Math.sin(t*.013+q.ph)*.5+Math.sin(t*.031+q.ph*2.3)*.3+Math.sin(t*.057+q.ph*.7)*.2;q.n=n;
+  q.fl.scale.set(.52+n*.06,.92+n*.15,1);q.fl.position.y=q.y+n*.02;q.ha.scale.setScalar(2.5+n*.35)}
+ // torch lights follow the nearest torches
+ const f=Math.max(0,Math.min(1,lamp.intensity/1.3));
+ if(f>.01&&torches.length){const cp=cam.position,ds=torches.map((q,i)=>[(q.x-cp.x)**2+(q.z-cp.z)**2,i]);
+  for(let k=0;k<tLights.length;k++){let bi=-1,bd=1e9;for(let i=0;i<ds.length;i++)if(ds[i][0]<bd){bd=ds[i][0];bi=i}
+   const L=tLights[k];if(bi<0){L.intensity=0;continue}const q=torches[ds[bi][1]];ds[bi][0]=1e9;L.position.set(q.x,q.y-.1,q.z);L.intensity=2.1*f*(.86+.14*q.n)}}
+ else tLights.forEach(L=>L.intensity=0);
+ // spiders bob on their silk
+ if(ceil&&ceil.visible)for(let i=0;i<spiders.length;i++){const s=spiders[i],L=s.L0+Math.sin(t*.0006*s.sp+s.ph)*s.amp,sx=s.x+Math.sin(t*.0009+s.ph)*.05;
+  s.m.position.set(sx,-L,s.z);s.m.rotation.y=s.r+Math.sin(t*.0004*s.sp+s.ph)*.9;
+  const o=i*6;thrPos[o]=s.x;thrPos[o+1]=0;thrPos[o+2]=s.z;thrPos[o+3]=sx;thrPos[o+4]=-L+.1*s.k;thrPos[o+5]=s.z}
+ if(thr)thr.geometry.attributes.position.needsUpdate=true;
+ // floating dust around the player
+ const on=mode==='play'||mode==='read'||mode==='fly';mote.visible=on;
+ if(on){const c=cam.position,H=9;for(let i=0;i<motePos.length/3;i++){const o=i*3;
+   motePos[o]+=(moteVel[o]+Math.sin(t*.0007+i)*.03)*dt;motePos[o+1]+=(moteVel[o+1]+Math.sin(t*.0009+i*1.7)*.02)*dt;motePos[o+2]+=(moteVel[o+2]+Math.cos(t*.0006+i*.6)*.03)*dt;
+   let dx=motePos[o]-c.x,dz=motePos[o+2]-c.z;if(dx>H)motePos[o]-=2*H;else if(dx<-H)motePos[o]+=2*H;if(dz>H)motePos[o+2]-=2*H;else if(dz<-H)motePos[o+2]+=2*H;
+   if(motePos[o+1]<.1)motePos[o+1]=3.4;else if(motePos[o+1]>3.5)motePos[o+1]=.2}
+  mote.geometry.attributes.position.needsUpdate=true}}
+
 /* ===== SCENE ===== */
 function initScene(){scene=new THREE.Scene();scene.background=NIGHT.clone();scene.fog=new THREE.FogExp2(0x0b0a08,.0035);
  cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.5,600);
@@ -242,12 +449,13 @@ function initScene(){scene=new THREE.Scene();scene.background=NIGHT.clone();scen
  const fl=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({map:T.floor}));fl.rotation.x=-Math.PI/2;fl.position.set(CX,0,CX);scene.add(fl);
  const gd=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.MeshLambertMaterial({color:0x1a1610}));gd.rotation.x=-Math.PI/2;gd.position.set(CX,-.4,CX);scene.add(gd);
  sun=new THREE.Mesh(new THREE.CircleGeometry(15,40),new THREE.MeshBasicMaterial({color:0xffe2a8,fog:false}));sun.rotation.y=Math.PI;sun.position.set(CX+(EX*CS-CX),-30,EZ*CS+190);scene.add(sun);
- build();introCam(0);addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)})}
+ initFx();build();introCam(0);addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)})}
 function build(){if(grp)scene.remove(grp);layout();grp=new THREE.Group();scene.add(grp);
  const cells=[];for(let z=0;z<N;z++)for(let x=0;x<N;x++)if(G[z][x]&&D.some(([a,b])=>G[z+b]&&G[z+b][x+a]===0))cells.push([x,z]);
  const walls=new THREE.InstancedMesh(new THREE.BoxGeometry(CS,WH,CS),new THREE.MeshLambertMaterial({map:T.wall}),cells.length),d=new THREE.Object3D();
  cells.forEach(([x,z],i)=>{d.position.set(x*CS,WH/2,z*CS);d.updateMatrix();walls.setMatrixAt(i,d.matrix)});grp.add(walls);
- ceil=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({color:0x1c1610}));ceil.rotation.x=Math.PI/2;ceil.position.set(CX,WH,CX);grp.add(ceil);
+ buildRoof();
+ roof=new THREE.Mesh(new THREE.PlaneGeometry(N*CS,N*CS),new THREE.MeshLambertMaterial({map:roofTex(),transparent:true}));roof.rotation.x=-Math.PI/2;roof.position.set(CX,WH+.05,CX);grp.add(roof);
  const xg=new THREE.PlaneGeometry(2.2,2.2),xm=new THREE.MeshBasicMaterial({map:T.cross,transparent:true,depthWrite:false,opacity:.9}),
  hg=new THREE.PlaneGeometry(4.2,4.2),hf=new THREE.PlaneGeometry(CS*1.5,CS*1.5),hm=new THREE.MeshBasicMaterial({map:T.red,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
  dead.forEach(({x,z,o})=>{const m=new THREE.Mesh(xg,xm),h=new THREE.Mesh(hg,hm),f=new THREE.Mesh(hf,hm);
@@ -258,64 +466,116 @@ function build(){if(grp)scene.remove(grp);layout();grp=new THREE.Group();scene.a
   m.position.set(s.x*CS+s.w[0]*(CS/2-.03),1.9,s.z*CS+s.w[1]*(CS/2-.03));m.rotation.y=Math.atan2(-s.w[0],-s.w[1]);grp.add(m)});
  makeDoor();
  pos={x:1,z:1};ang=tAng=G[1][2]===0?Math.PI/2:0;vx=vz=CS;
- seen=Array.from({length:N},()=>Array(N).fill(0));reveal();near=-1;read.clear();trail=[1,1];locked=true;stepT=bumpT=9;dirty=1;count()}
-function introCam(t){const a=t*.00006,R=115,H=140;cam.position.set(CX+Math.sin(a)*R,H+Math.sin(t*.0002)*6,CX+Math.cos(a)*R);cam.lookAt(CX,0,CX);
- wander.position.set(CX+Math.sin(t*.00023)*70,14,CX+Math.cos(t*.00031)*70);const p=dust.geometry.attributes.position;
+ seen=Array.from({length:N},()=>Array(N).fill(0));reveal();near=-1;read.clear();trail=[1,1];locked=true;stepT=bumpT=9;dirty=1;steps=0;hints=0;elapsed=0;hintAt=-1e9;pend=null;tlBuild();count()}
+function introCam(t){const a=t*.00006,R=98,H=120;cam.position.set(CX+Math.sin(a)*R,H+Math.sin(t*.0002)*6,CX+Math.cos(a)*R);cam.lookAt(CX,0,CX);
+ wander.position.set(CX+Math.sin(t*.00023)*60,14,CX+Math.cos(t*.00031)*60);const p=dust.geometry.attributes.position;
  for(let i=0;i<p.count;i++)p.setY(i,p.getY(i)+Math.sin(t*.0006+i)*.012);p.needsUpdate=true}
 function topView(){const half=N*CS/2+4,h=half/(Math.tan(cam.fov*Math.PI/360)*Math.min(1,cam.aspect));cam.position.set(CX,h,CX+.1);cam.lookAt(CX,0,CX)}
 
 /* ===== PLAY ===== */
 function reveal(){for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const X=pos.x+a,Z=pos.z+b;if(seen[Z]&&seen[Z][X]===0)seen[Z][X]=1}}
-function count(){const c=$('#cnt');c.textContent='Plaques '+read.size+' / '+E.length;c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop')}
+function count(){const c=$('#cnt');c.textContent='Plaques '+read.size+' / '+E.length;c.classList.remove('pop');void c.offsetWidth;c.classList.add('pop');tlUpdate()}
 function toast(h){const t=$('#toast');t.innerHTML=h;t.classList.remove('show');void t.offsetWidth;t.classList.add('show')}
 function move(dir){if(mode!=='play')return;const nx=pos.x+dir*Math.round(Math.sin(tAng)),nz=pos.z+dir*Math.round(Math.cos(tAng));
  if(pos.x===EX&&pos.z===EZ&&nx===EX&&nz===EZ+1){tryDoor();return}
- if(G[nz]&&G[nz][nx]===0){pos={x:nx,z:nz};trail.push(nx,nz);snd.step();stepT=0;stepSide*=-1;reveal();dirty=1;arrive()}else{snd.bump();bumpT=0}}
+ if(G[nz]&&G[nz][nx]===0){pos={x:nx,z:nz};trail.push(nx,nz);steps++;snd.step();stepT=0;stepSide*=-1;reveal();dirty=1;arrive()}else{snd.bump();bumpT=0}}
 function tryDoor(){bumpT=0;if(locked){snd.rattle();door.sh=.7;toast('The door is sealed.<br>Find all the plaques to unlock it. '+(E.length-read.size)+' still to find.')}else finish()}
 function unlock(){locked=false;door.lock.visible=false;setTimeout(()=>{snd.unlock();toast('Every plaque found.<br>The exit is unlocked. Find your way back to the door.')},700)}
-function turn(s){if(mode==='play'){tAng+=s*Math.PI/2}}
+function turn(s){if(mode==='play'){tAng+=s*Math.PI/2;snd.scuff()}}
 function arrive(){if(pos.x===EX&&pos.z===EZ){near=-1;$('#prompt').hidden=true;return}
  const s=st.find(o=>o.x===pos.x&&o.z===pos.z),p=$('#prompt');
  if(s){if(near!==s.n&&!read.has(s.n))snd.find();near=s.n;p.textContent='Read the plaque · E';p.hidden=false}else{near=-1;p.hidden=true}}
-function sheetHTML(i){const e=E[i];let h=`<button class="x lk" id="cl">Close</button><div class="yr">${e.y}</div><h2>${e.t}</h2>`;
- h+=e.i?`<img src="${e.i}" alt="" loading="lazy">`:'<canvas id="pl" width="720" height="300"></canvas>';
- if(e.c)h+=`<p class="cap">${e.c}</p>`;
+/* --- pictures and context (fetched live from Wikipedia, only when a plaque is opened) --- */
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const wl=t=>'https://en.wikipedia.org/wiki/'+encodeURIComponent(t.replace(/ /g,'_'));
+const lnk=s=>{const k=s.indexOf('|'),a=k<0?s:s.slice(0,k),b=k<0?s:s.slice(k+1);return[a.replace(/_/g,' '),/^https?:/.test(b)?b:wl(b)]};
+const med=i=>{const r=MEDIA.find(r=>r[0]===i+1)||[];return{wiki:r[2]||'',image:r[3]||'',caption:r[4]||'',video:r[5]||'',links:r[6]||[]}};
+const wc={},ic={};
+function wiki(t){return wc[t]||(wc[t]=fetch('https://en.wikipedia.org/api/rest_v1/page/summary/'+encodeURIComponent(t.replace(/ /g,'_'))).then(r=>r.ok?r.json():null).catch(()=>null).then(r=>{if(!r)delete wc[t];return r}))}
+function info(i){return ic[i]||(ic[i]=(async()=>{const m=med(i),rs=await Promise.all(m.wiki.split(';').map(q=>q.trim()).filter(Boolean).map(wiki)),
+ main=rs.find(r=>r&&r.extract),pic=rs.find(r=>r&&(r.originalimage||r.thumbnail)),o=pic&&pic.originalimage,th=(pic&&pic.thumbnail&&pic.thumbnail.source)||'',
+ big=m.image||(o&&o.width<=2200?o.source:th||(o&&o.source)||''),d={main,pic,img:big,thumb:m.image||th||big};
+ if(!main&&!big)delete ic[i];return d})())}
+async function showVis(i){if(!$('#vb'))return;const d=await info(i),m=med(i);if(!$('#vis')||$('#vis').dataset.i!=i)return;const b=$('#vb');b.innerHTML='';
+ const add=(tag,cls,txt)=>{const p=document.createElement(tag);p.className=cls;p.textContent=txt;b.appendChild(p);return p};
+ if(d.img){const im=new Image();let tried=0;im.alt='';im.onerror=()=>{if(!tried&&d.thumb&&d.thumb!==d.img){tried=1;im.src=d.thumb}else im.remove()};im.src=d.img;b.appendChild(im);
+  const cp=m.caption||(d.pic?'Image: '+d.pic.title+', via Wikipedia':'');if(cp)add('p','cap',cp)}
+ if(d.main){let t=d.main.extract;if(t.length>380){const k=t.slice(0,380),p=k.lastIndexOf('. ');t=p>120?k.slice(0,p+1):k.trimEnd()+'…'}add('p','ctx',t);
+  const a=add('a','src','Read “'+d.main.title+'” on Wikipedia ↗');a.href=(d.main.content_urls&&d.main.content_urls.desktop&&d.main.content_urls.desktop.page)||wl(d.main.title);a.target='_blank';a.rel='noopener'}
+ if(!d.img&&!d.main)add('p','cap','No picture could be loaded. You may be offline, or the article name in the MEDIA table needs fixing. The links below still work.')}
+
+function sheetHTML(i){const e=E[i],m=med(i);let h=`<button class="x lk" id="cl">Close</button><div class="yr">${e.y}</div><h2>${e.t}</h2><canvas id="pl" width="720" height="300"></canvas>`;
  h+='<ul>'+e.p.map((s,j)=>{const k=s.indexOf('|'),a=k<0?'':s.slice(0,k),b=k<0?s:s.slice(k+1);
   return a==='q'?`<blockquote>${b}</blockquote>`:`<li style="animation-delay:${.12+j*.06}s">${a?`<b>${a}</b>`:''}${b}</li>`}).join('')+'</ul>';
- if(e.v)h+=`<button class="lk vid" data-v="${e.v}">Watch video</button>`;
- if(e.l)h+='<div class="lk2">'+e.l.map(([a,u])=>`<a href="${u}" target="_blank" rel="noopener">${a} ↗</a>`).join('')+'</div>';return h}
-function show(i){mode='read';read.add(i);count();if(read.size===E.length&&locked)unlock();dirty=1;const s=$('#sheet');s.innerHTML=sheetHTML(i);s.scrollTop=0;s.classList.add('on');snd.page();
+ h+=`<div class="vis" id="vis" data-i="${i}"><p class="vl">Pictures and context</p><div class="vb" id="vb"><p class="cap">Loading pictures and context…</p></div>`;
+ if(m.video)h+=`<button class="lk vid" data-v="${esc(m.video)}">Watch video</button>`;
+ const q=(m.wiki.split(';')[0]||e.t).replace(/_/g,' ');
+ const L=m.links.map(lnk).concat([['Search YouTube for videos','https://www.youtube.com/results?search_query='+encodeURIComponent('Rizal '+e.t)],['More pictures on Wikimedia Commons','https://commons.wikimedia.org/w/index.php?search='+encodeURIComponent(q)]]);
+ return h+'<p class="vl">Learn more</p><div class="lk2">'+L.map(([a,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(a)} ↗</a>`).join('')+'</div></div>'}
+function show(i){mode='read';const first=!read.has(i),c=CH.find(c=>c[0]===i);if(first&&c)pend=c;read.add(i);count();if(read.size===E.length&&locked)unlock();dirty=1;
+ const s=$('#sheet');s.innerHTML=sheetHTML(i);s.scrollTop=0;s.classList.add('on');snd.page();
  const pl=$('#pl');if(pl)pl.getContext('2d').drawImage(plateTex(E[i],720,300,1),0,0);
- $('#cl').onclick=close;const v=$('.vid');if(v)v.onclick=()=>{const id=v.dataset.v;v.outerHTML=/\.(mp4|webm)$/i.test(id)?`<video src="${id}" controls preload="none"></video>`:`<iframe src="https://www.youtube-nocookie.com/embed/${id}" allowfullscreen loading="lazy"></iframe>`}}
+ $('#cl').onclick=close;const v=$('.vid');if(v)v.onclick=()=>{const id=v.dataset.v;v.outerHTML=/\.(mp4|webm)$/i.test(id)?`<video src="${esc(id)}" controls preload="none"></video>`:`<iframe src="https://www.youtube-nocookie.com/embed/${esc(id)}" allowfullscreen loading="lazy"></iframe>`};
+ showVis(i)}
 function journal(){if(mode!=='play'&&mode!=='read'&&mode!=='done')return;const was=mode;if(was==='play')mode='read';
- const s=$('#sheet'),r=[...read].sort((a,b)=>a-b);
- s.innerHTML='<button class="x lk" id="cl">Close</button><div class="yr">JOURNAL</div><h2>Plaques you have read</h2>'+(r.length?r.map(i=>`<button class="j" data-i="${i}"><span>${E[i].y}</span>${E[i].t}</button>`).join(''):'<p>Nothing yet. Plaques are set in the walls along the route.</p>');
- s.classList.add('on');$('#cl').onclick=close;s.querySelectorAll('.j').forEach(b=>b.onclick=()=>show(+b.dataset.i));s.dataset.from=was}
-function close(){const s=$('#sheet');s.classList.remove('on');snd.page();if(mode==='read')mode=endT>0?'done':'play'}
-function begin(){snd.init();const it=$('#intro');it.style.opacity=0;setTimeout(()=>it.hidden=true,1000);
+ const s=$('#sheet');let h=`<button class="x lk" id="cl">Close</button><div class="yr">JOURNAL</div><h2>${read.size} of ${E.length} plaques read</h2><div class="prog"><i style="width:${read.size/E.length*100}%"></i></div>`;
+ if(!read.size)h+='<p>Nothing yet. Plaques are set in the walls along the route.</p>';
+ E.forEach((e,i)=>{const c=CH.find(c=>c[0]===i);if(c)h+=`<div class="ch">${c[1]}, ${c[2]}</div>`;
+  h+=read.has(i)?`<button class="j" data-i="${i}"><div class="tx"><span>${e.y}</span>${e.t}</div></button>`:`<div class="j u"><div class="tx"><span>Plaque ${i+1}</span>Not found yet</div></div>`});
+ s.innerHTML=h;s.scrollTop=0;s.classList.add('on');$('#cl').onclick=close;
+ s.querySelectorAll('button.j').forEach(b=>{b.onclick=()=>show(+b.dataset.i);info(+b.dataset.i).then(d=>{if(!d.thumb||!b.isConnected)return;const im=new Image();im.alt='';im.onload=()=>{if(b.isConnected)b.insertBefore(im,b.firstChild)};im.src=d.thumb})});s.dataset.from=was}
+function menu(){if(mode!=='play')return;mode='read';const s=$('#sheet'),sl=(id,l,v,a,b)=>`<label>${l}<input type="range" id="${id}" min="${a}" max="${b}" step=".05" value="${v}"></label>`;
+ s.innerHTML=`<button class="x lk" id="cl">Close</button><div class="yr">MENU</div><h2>Settings</h2><div class="set">${sl('sm','Music and ambience',cfg.music,0,1)}${sl('sf','Sound effects',cfg.fx,0,1)}${sl('sl','Lantern brightness',cfg.light,.7,1.6)}${sl('sb','Head bob',cfg.bob,0,1.5)}</div>`+
+ `<div class="mb"><button class="lk" id="mt">Sound: ${snd.mute?'Off':'On'}</button><button class="lk" id="mr">Back to the start</button></div>`+
+ '<div class="yr">CONTROLS</div><ul><li><b>Move</b>W A S D or the arrow keys. On a phone: the arrow buttons or swipe.</li><li><b>Read</b>E at a plaque. J opens the journal.</li><li><b>Map</b>M, or click the small map.</li><li><b>Close</b>Esc closes any panel.</li></ul>';
+ s.classList.add('on');s.scrollTop=0;snd.page();$('#cl').onclick=close;
+ [['#sm','music'],['#sf','fx'],['#sl','light'],['#sb','bob']].forEach(([id,k])=>$(id).oninput=e=>{cfg[k]=+e.target.value;save();snd.vol()});
+ $('#mt').onclick=()=>{$('#mt').textContent='Sound: '+(snd.toggle()?'Off':'On')};
+ $('#mr').onclick=()=>{close();toStart()};
+ }
+function close(){const s=$('#sheet');s.classList.remove('on');snd.page();if(mode==='read')mode=endT>0?'done':'play';if(pend&&mode==='play')card(pend[1],pend[2]);pend=null}
+function card(h,p){const e=$('#hint');e.innerHTML='<h2>'+h+'</h2><p>'+p+'</p>';e.classList.remove('show');void e.offsetWidth;e.classList.add('show')}
+function toStart(){if(mode!=='play')return;pos={x:1,z:1};ang=tAng=G[1][2]===0?Math.PI/2:0;vx=vz=CS;near=-1;trail=[1,1];$('#prompt').hidden=true;dirty=1;snd.fold()}
+
+/* --- timeline ribbon, compass, hint --- */
+function tlBuild(){const t=$('#tl');t.innerHTML='';E.forEach((e,i)=>{const b=document.createElement('button');b.className='tk';b.onclick=()=>{if(read.has(i)&&(mode==='play'||mode==='read'))show(i)};t.appendChild(b)});tlUpdate()}
+function tlUpdate(){document.querySelectorAll('#tl .tk').forEach((b,i)=>{const r=read.has(i);b.classList.toggle('r',r);b.title=r?E[i].y+'. '+E[i].t:'Plaque '+(i+1)+', not found yet'})}
+function drawCompass(){cmpA=ang;const c=$('#cmp'),x=c.getContext('2d'),W=c.width,H=c.height,h=Math.atan2(Math.sin(ang),-Math.cos(ang))*180/Math.PI,sc=W/110,nm={0:'N',45:'NE',90:'E',135:'SE',180:'S',225:'SW',270:'W',315:'NW'};x.clearRect(0,0,W,H);
+ for(let d=0;d<360;d+=15){const df=((d-h+540)%360)-180;if(Math.abs(df)>55)continue;const px=W/2+df*sc;x.globalAlpha=1-Math.abs(df)/60;x.fillStyle=nm[d]?'#d4af37':'#8d7a45';
+  if(nm[d]){x.font='700 '+(d%90?15:22)+'px Cinzel,serif';x.textAlign='center';x.textBaseline='middle';x.fillText(nm[d],px,H*.42)}else x.fillRect(px-1,H*.28,2,H*.28)}
+ x.globalAlpha=1;x.fillStyle='#f4ebd0';x.beginPath();x.moveTo(W/2,H-2);x.lineTo(W/2-5,H-10);x.lineTo(W/2+5,H-10);x.fill()}
+const nextUnread=()=>{for(let i=0;i<E.length;i++)if(!read.has(i))return i;return -1};
+const dirWord=(dx,dz)=>['north','north-east','east','south-east','south','south-west','west','north-west'][((Math.round(Math.atan2(dx,-dz)*180/Math.PI/45)%8)+8)%8];
+
+function tp(x,z,a){pos={x,z};vx=x*CS;vz=z*CS;ang=tAng=a;trail.push(x,z);reveal();dirty=1;stepT=9;snd.ui();arrive()}
+
+
+function begin(){snd.init();snd.begin();const it=$('#intro');it.style.opacity=0;setTimeout(()=>it.hidden=true,1000);
  const p0=cam.position.clone(),l0=new THREE.Vector3(CX,0,CX),p1=new THREE.Vector3(CS,1.7,CS),l1=new THREE.Vector3(CS+Math.sin(ang)*5,1.7,CS+Math.cos(ang)*5),t0=performance.now();mode='fly';
  (function f(n){const k=Math.min((n-t0)/2600,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
-  cam.position.lerpVectors(p0,p1,e);lookV.lerpVectors(l0,l1,e);cam.lookAt(lookV);amb.intensity=.5-.2*e;moon.intensity=.55*(1-e);wander.intensity=2.2*(1-e);dust.visible=e<.3;scene.fog.density=.0035+.0565*e;lamp.intensity=1.3*e;ceil.visible=e>.7;
-  if(k<1)requestAnimationFrame(f);else{mode='play';$('#hud').hidden=false;$('#hint').classList.add('show')}})(t0)}
-function finish(){mode='end';endT=.001;endFrom=cam.position.clone();lookFrom=new THREE.Vector3(vx+Math.sin(ang)*5,1.7,vz+Math.cos(ang)*5);$('#prompt').hidden=true;$('#hud').hidden=true;$('#sheet').classList.remove('on');snd.dawn()}
+  cam.position.lerpVectors(p0,p1,e);lookV.lerpVectors(l0,l1,e);cam.lookAt(lookV);amb.intensity=.5-.2*e;moon.intensity=.55*(1-e);wander.intensity=2.2*(1-e);dust.visible=e<.3;scene.fog.density=.0035+.0565*e;lamp.intensity=1.3*e;roof.material.opacity=1-Math.min(Math.max((e-.15)/.4,0),1);roof.visible=roof.material.opacity>.01;
+  if(k<1)requestAnimationFrame(f);else{mode='play';roof.visible=false;$('#hud').hidden=false;$('#hint').classList.add('show')}})(t0)}
+function finish(){mode='end';endT=.001;const sc=Math.round(elapsed);$('#es').textContent='Your walk: '+Math.floor(sc/60)+':'+String(sc%60).padStart(2,'0')+', '+steps+' steps.';endFrom=cam.position.clone();lookFrom=new THREE.Vector3(vx+Math.sin(ang)*5,1.7,vz+Math.cos(ang)*5);$('#prompt').hidden=true;$('#hud').hidden=true;$('#sheet').classList.remove('on');$('#bars').classList.add('on');snd.dawn()}
 function endStep(dt){endT+=dt;const cl=v=>Math.min(Math.max(v,0),1),sm=v=>v*v*(3-2*v),
- walk=sm(cl(endT/3.5)),w=sm(cl((endT-2)/5)),s=sm(cl((endT-2)/10)),b=sm(cl(endT/5)),cu=Math.max(endT-2,0);
- grp.scale.y=Math.max(1-w,.02);ceil.position.y=WH+cu*14;ceil.visible=cu<1.6;glow.visible=endT<1.2;
- const c=NIGHT.clone().lerp(DAWN,s);scene.background.copy(c);scene.fog.color.copy(c);scene.fog.density=.06-.05*s;amb.intensity=.3+.95*s;lamp.intensity=1.3*(1-cl(endT/3));
- sun.position.y=-30+s*58;cam.position.set(endFrom.x+(EX*CS-endFrom.x)*walk,1.7+s*4.5,endFrom.z+(EZ*CS+5-endFrom.z)*walk-s*3);lamp.position.copy(cam.position);
+ walk=sm(cl(endT/5)),w=sm(cl((endT-3.5)/6)),s=sm(cl((endT-3.5)/11)),b=sm(cl(endT/7)),cu=Math.max(endT-3.5,0),fl=Math.max(0,1-Math.abs(endT-3.6)/1.3);
+ grp.scale.y=Math.max(1-w,.02);ceil.position.y=WH+cu*14;ceil.visible=cu<1.6;glow.visible=endT<2.5;$('#flash').style.opacity=fl*.9;
+ const c=NIGHT.clone().lerp(DAWN,s);scene.background.copy(c);scene.fog.color.copy(c);scene.fog.density=.06-.05*s;amb.intensity=.3+.95*s;lamp.intensity=1.3*(1-cl(endT/4));
+ sun.position.y=-30+s*58;cam.fov=60-16*s;cam.updateProjectionMatrix();
+ cam.position.set(endFrom.x+(EX*CS-endFrom.x)*walk,1.7+s*6,endFrom.z+(EZ*CS+5-endFrom.z)*walk-s*6);lamp.position.copy(cam.position);
  lookV.lerpVectors(lookFrom,new THREE.Vector3(EX*CS,5+s*10,EZ*CS+190),b);cam.lookAt(lookV);
- if(endT>9&&!endShown){endShown=1;$('#end').style.opacity=1;$('#end').classList.add('on');mode='done'}}
-function reset(){endT=0;endShown=0;$('#end').style.opacity=0;$('#end').classList.remove('on');scene.background.copy(NIGHT);scene.fog.color.set(0x0b0a08);scene.fog.density=.06;amb.intensity=.35;lamp.intensity=1.3;sun.position.y=-30;
+ if(endT>14&&!endShown){endShown=1;$('#end').style.opacity=1;$('#end').classList.add('on');mode='done'}}
+function reset(){endT=0;endShown=0;$('#bars').classList.remove('on');$('#flash').style.opacity=0;cam.fov=60;cam.updateProjectionMatrix();if(snd.x)snd.wg.gain.setTargetAtTime(.05,snd.x.currentTime,1);$('#end').style.opacity=0;$('#end').classList.remove('on');scene.background.copy(NIGHT);scene.fog.color.set(0x0b0a08);scene.fog.density=.06;amb.intensity=.35;lamp.intensity=1.3;sun.position.y=-30;
  $('#prompt').hidden=true;$('#sheet').classList.remove('on')}
 function loop(t){requestAnimationFrame(loop);const dt=Math.min((t-last)/1000,.1);last=t;
  if(door){if(!locked&&door.o<1)door.o=Math.min(1,door.o+dt/2.2);door.sh=Math.max(0,door.sh-dt);const a=(1-Math.pow(1-door.o,3))*1.75,j=Math.sin(t*.09)*.04*door.sh;door.gl.rotation.y=-a+j;door.gr.rotation.y=a-j}
- if(mode==='play'||mode==='read'||mode==='map'){stepT+=dt;bumpT+=dt;const k=1-Math.exp(-dt*10);ang+=(tAng-ang)*k;vx+=(pos.x*CS-vx)*k;vz+=(pos.z*CS-vz)*k;
-  const dip=Math.sin(Math.PI*Math.min(stepT/.34,1)),bk=Math.min(bumpT/.28,1),bn=Math.sin(Math.PI*bk)*.2*(1-bk),y=1.7-dip*.14+Math.sin(t*.0017)*.012,fx=Math.sin(ang),fz=Math.cos(ang);
-  cam.position.set(vx+fx*bn,y,vz+fz*bn);cam.lookAt(vx+fx*5,1.7,vz+fz*5);cam.rotateZ(stepSide*dip*.014+(tAng-ang)*.03);
-  lamp.position.copy(cam.position);lamp.intensity=(1.3+Math.sin(t*.011)*.04+Math.sin(t*.0273)*.03)*(t%27000<350?.6+.4*Math.abs(Math.sin(t*.03)):1);
-  if(dirty||Math.abs(tAng-ang)>.01){drawMap($('#mm'),0,t);dirty=0}if(mode==='map')drawMap($('#fmc'),1,t)}
+ if(mode==='play'||mode==='read'||mode==='map'){stepT+=dt;bumpT+=dt;if(mode==='play')elapsed+=dt;amb.intensity=.3*cfg.light;const k=1-Math.exp(-dt*10);ang+=(tAng-ang)*k;vx+=(pos.x*CS-vx)*k;vz+=(pos.z*CS-vz)*k;
+  const dip=Math.sin(Math.PI*Math.min(stepT/.34,1)),bk=Math.min(bumpT/.28,1),bn=Math.sin(Math.PI*bk)*.2*(1-bk),B=cfg.bob,id=Math.min(stepT/.7,1),br=(Math.sin(t*.0019)*.026+Math.sin(t*.0047)*.008)*id*B,sw=Math.sin(t*.0011)*.022*id*B,y=1.7-dip*.08*B+br,fx=Math.sin(ang),fz=Math.cos(ang);
+  cam.position.set(vx+fx*bn-fz*sw,y,vz+fz*bn+fx*sw);cam.lookAt(vx+fx*5,1.7,vz+fz*5);cam.rotateZ(stepSide*dip*.008*B+(tAng-ang)*.03+Math.sin(t*.0013)*.003*id*B);
+  lamp.position.copy(cam.position);lamp.intensity=(1.3+Math.sin(t*.011)*.04+Math.sin(t*.0273)*.03)*(t%27000<350?.6+.4*Math.abs(Math.sin(t*.03)):1)*cfg.light;
+  if(Math.abs(ang-cmpA)>.002)drawCompass();if(dirty||Math.abs(tAng-ang)>.01){drawMap($('#mm'),0,t);dirty=0}if(mode==='map')drawMap($('#fmc'),1,t)}
  else if(mode==='intro')introCam(t);else if(mode==='end')endStep(dt);else if(mode==='done')endStep(0);
- ren.render(scene,cam)}
+
+ fx(t,dt);ren.render(scene,cam)}
 function drawMap(m,big,t){const s=m.clientWidth;if(!s)return;if(m.width!==s)m.width=m.height=s;const x=m.getContext('2d'),c=s/N;x.fillStyle='#0a0908';x.fillRect(0,0,s,s);
  for(let z=0;z<N;z++)for(let q=0;q<N;q++)if(seen[z][q]){x.fillStyle=G[z][q]?'#4a4234':'#1d1a15';x.fillRect(q*c,z*c,c+.5,c+.5)}
  if(big&&showTrail&&trail.length>3){x.strokeStyle='rgba(212,175,55,.4)';x.lineWidth=Math.max(c*.22,1.5);x.setLineDash([c*.5,c*.5]);x.beginPath();for(let i=0;i<trail.length;i+=2)x[i?'lineTo':'moveTo']((trail[i]+.5)*c,(trail[i+1]+.5)*c);x.stroke();x.setLineDash([])}
@@ -327,12 +587,13 @@ function drawMap(m,big,t){const s=m.clientWidth;if(!s)return;if(m.width!==s)m.wi
  const px=(pos.x+.5)*c,pz=(pos.z+.5)*c,fx=Math.sin(ang),fz=Math.cos(ang);
  if(big){x.strokeStyle='rgba(244,235,208,.5)';x.lineWidth=1.5;x.beginPath();x.arc(px,pz,c*(1.8+.5*Math.sin(t*.005)),0,7);x.stroke()}
  x.fillStyle='#f4ebd0';x.beginPath();x.moveTo(px+fx*c*2,pz+fz*c*2);x.lineTo(px-fx*c-fz*c,pz-fz*c+fx*c);x.lineTo(px-fx*c+fz*c,pz-fz*c-fx*c);x.fill()}
-function openMap(){if(mode!=='play')return;mode='map';$('#fm').hidden=false}
+function openMap(){if(mode!=='play')return;mode='map';$('#fm').hidden=false;snd.fold()}
 function closeMap(){$('#fm').hidden=true;if(mode==='map')mode='play';dirty=1}
 
 /* ===== INPUT ===== */
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();
- if(k==='escape'&&mode==='read'){close();return}if(k==='escape'&&mode==='map'){closeMap();return}
+ if(k==='escape'){if(mode==='read')close();else if(mode==='map')closeMap();else if(mode==='play')menu();return}
+
  if(k==='e'||k==='enter'){if(mode==='read')close();else if(mode==='play'&&near>=0)show(near);return}
  if(k==='j'){journal();return}if(k==='m'){mode==='map'?closeMap():openMap();return}
  if(mode!=='play')return;if(k.startsWith('arrow'))e.preventDefault();
@@ -346,9 +607,9 @@ $('#mmw').onclick=openMap;$('#bm').onclick=openMap;$('#fmx').onclick=closeMap;
 $('#fmtrail').onclick=()=>{showTrail=!showTrail;$('#fmtrail').textContent='Trail: '+(showTrail?'On':'Off')};
 $('#fmc').onclick=e=>{const r=e.target.getBoundingClientRect(),cx=Math.floor((e.clientX-r.left)/r.width*N),cz=Math.floor((e.clientY-r.top)/r.height*N),o=st.find(o=>read.has(o.n)&&Math.abs(o.x-cx)<=1&&Math.abs(o.z-cz)<=1);if(o){closeMap();show(o.n)}};
 $('#go').onclick=begin;$('#prompt').onclick=()=>near>=0&&show(near);$('#bj').onclick=journal;
-$('#bs').onclick=()=>{$('#bs').textContent='Sound: '+(snd.toggle()?'Off':'On')};
-$('#br').onclick=()=>{if(mode==='play'){pos={x:1,z:1};ang=tAng=G[1][2]===0?Math.PI/2:0;vx=vz=CS;near=-1;trail=[1,1];$('#prompt').hidden=true;dirty=1}};
+$('#bu').onclick=menu;
+document.addEventListener('click',e=>{if(e.target.closest('.tr button,.fmt button,.mb button,.tk,.btn:not(#go)'))snd.ui()});
 $('#ej').onclick=journal;
-$('#ea').onclick=()=>{reset();build();ceil.visible=true;grp.scale.y=1;mode='play';$('#hud').hidden=false};
+$('#ea').onclick=()=>{reset();build();ceil.visible=true;roof.visible=false;grp.scale.y=1;mode='play';$('#hud').hidden=false};
 Promise.race([document.fonts.load('700 40px Cinzel'),new Promise(r=>setTimeout(r,1500))]).then(()=>{initScene();requestAnimationFrame(loop)},()=>{initScene();requestAnimationFrame(loop)});
 </script></body></html>
